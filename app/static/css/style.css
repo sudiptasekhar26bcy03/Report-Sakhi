@@ -434,6 +434,11 @@ input:checked+.switch-slider::before {
     text-align: left;
 }
 
+.selected-lang-info {
+    display: flex;
+    flex-direction: column;
+}
+
 .dropdown-trigger:hover, .custom-dropdown.open .dropdown-trigger {
     border-color: var(--primary);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);

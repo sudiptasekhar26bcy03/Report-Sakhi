@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>ReportSakhi - Your Medical Report Friend</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css?v=2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet">
@@ -68,7 +68,7 @@
                             <span class="lang-script" id="selectedLangScript">മലയാളം</span>
                             <span class="lang-sub" id="selectedLangSub">Malayalam</span>
                         </div>
-                        <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </button>
                     <ul class="dropdown-menu" role="listbox" id="languageOptions">
                         {% for lang_code, lang_meta in languages.items() %}
@@ -390,6 +390,6 @@
         </div>
     </section>
 
-    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.js?v=2"></script>
 </body>
 </html>
