@@ -57,14 +57,15 @@ class ExplainerAgent:
         return sanitized
 
     @staticmethod
-    def _ensure_safety_disclaimer(text: str) -> str:
+    def _ensure_safety_disclaimer(text: str, lang: str = "en") -> str:
         """Guarantees the exact required safety disclaimer is appended to the text."""
+        localized_safety = LOCALIZED_SAFETY_DISCLAIMERS.get(lang, EXACT_SAFETY_DISCLAIMER)
         stripped = text.strip()
-        if not stripped.endswith(EXACT_SAFETY_DISCLAIMER):
+        if not stripped.endswith(localized_safety):
             # If already partially present, strip and re-append cleanly
-            if EXACT_SAFETY_DISCLAIMER in stripped:
-                stripped = stripped.replace(EXACT_SAFETY_DISCLAIMER, "").strip()
-            return f"{stripped} {EXACT_SAFETY_DISCLAIMER}".strip()
+            if localized_safety in stripped:
+                stripped = stripped.replace(localized_safety, "").strip()
+            return f"{stripped} {localized_safety}".strip()
         return stripped
 
     async def generate_explanation(
@@ -111,7 +112,7 @@ MANDATORY SAFETY RULES:
 3. LONGITUDINAL TREND: If previous test data is given above, you MUST explicitly speak about whether values are higher, lower, or improved compared to the last test.
 4. LENGTH: Keep the entire summary concise and calm (2 to 4 sentences).
 5. MANDATORY CONCLUSION: The summary and speech script MUST end with this exact sentence:
-"{EXACT_SAFETY_DISCLAIMER}"
+"{localized_safety}"
 
 Format output strictly as JSON with keys:
 {{
@@ -159,7 +160,11 @@ Format output strictly as JSON with keys:
                 if not response or not response.text:
                     raise RuntimeError("All candidate Gemini models failed for explanation.")
 
-                parsed = json.loads(response.text or "{}")
+                raw_json = response.text or "{}"
+                if raw_json.strip().startswith("```"):
+                    raw_json = re.sub(r"^```(?:json)?\s*\n", "", raw_json.strip())
+                    raw_json = re.sub(r"\n```\s*$", "", raw_json)
+                parsed = json.loads(raw_json)
 
                 # Sanitize any diagnostic terminology
                 headline = self._sanitize_diagnoses(parsed.get("headline", "Report Overview"))
@@ -168,8 +173,8 @@ Format output strictly as JSON with keys:
                 key_points = [self._sanitize_diagnoses(p) for p in parsed.get("key_points", [])]
 
                 # Ensure exact safety disclaimer is appended
-                summary_text = self._ensure_safety_disclaimer(summary_raw)
-                full_speech_script = self._ensure_safety_disclaimer(speech_raw)
+                summary_text = self._ensure_safety_disclaimer(summary_raw, lang)
+                full_speech_script = self._ensure_safety_disclaimer(speech_raw, lang)
 
                 return {
                     "language": lang,
@@ -232,7 +237,7 @@ Format output strictly as JSON with keys:
             if comp_spoken:
                 points.append(f"കഴിഞ്ഞ റിപ്പോർട്ടുമായുള്ള മാറ്റം: {comp_spoken}")
 
-            summary = f"{body} {EXACT_SAFETY_DISCLAIMER}"
+            summary = f"{body} {LOCALIZED_SAFETY_DISCLAIMERS.get(lang, EXACT_SAFETY_DISCLAIMER)}"
 
         elif lang == "hi":
             if red_items:
@@ -258,7 +263,7 @@ Format output strictly as JSON with keys:
             if comp_spoken:
                 points.append(f"पिछली जांच से तुलना: {comp_spoken}")
 
-            summary = f"{body} {EXACT_SAFETY_DISCLAIMER}"
+            summary = f"{body} {LOCALIZED_SAFETY_DISCLAIMERS.get(lang, EXACT_SAFETY_DISCLAIMER)}"
 
         elif lang == "ta":
             if red_items:
@@ -284,7 +289,7 @@ Format output strictly as JSON with keys:
             if comp_spoken:
                 points.append(f"கடந்த சோதனையுடன் ஒப்பீடு: {comp_spoken}")
 
-            summary = f"{body} {EXACT_SAFETY_DISCLAIMER}"
+            summary = f"{body} {LOCALIZED_SAFETY_DISCLAIMERS.get(lang, EXACT_SAFETY_DISCLAIMER)}"
 
         elif lang == "te":
             if red_items:
@@ -310,7 +315,7 @@ Format output strictly as JSON with keys:
             if comp_spoken:
                 points.append(f"గత రిపోర్టుతో పోలిక: {comp_spoken}")
 
-            summary = f"{body} {EXACT_SAFETY_DISCLAIMER}"
+            summary = f"{body} {LOCALIZED_SAFETY_DISCLAIMERS.get(lang, EXACT_SAFETY_DISCLAIMER)}"
 
         else:  # English (Class 5 Elementary Level)
             if red_items:
@@ -336,7 +341,7 @@ Format output strictly as JSON with keys:
             if comp_spoken:
                 points.append(f"Trend vs Last Report: {comp_spoken}")
 
-            summary = f"{body} {EXACT_SAFETY_DISCLAIMER}"
+            summary = f"{body} {LOCALIZED_SAFETY_DISCLAIMERS.get(lang, EXACT_SAFETY_DISCLAIMER)}"
 
         return {
             "language": lang,

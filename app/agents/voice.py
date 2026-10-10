@@ -54,6 +54,7 @@ LANGUAGE_MAP = {
         "bhashini": "hi",
         "sarvam": "hi-IN",
         "google": "hi-IN",
+        "google_voice_name": "hi-IN-Standard-A",
         "azure_voice": "hi-IN-SwaraNeural",
         "azure_lang": "hi-IN"
     },
@@ -61,6 +62,7 @@ LANGUAGE_MAP = {
         "bhashini": "en",
         "sarvam": "en-IN",
         "google": "en-IN",
+        "google_voice_name": "en-IN-Standard-A",
         "azure_voice": "en-IN-NeerjaNeural",
         "azure_lang": "en-IN"
     },
@@ -68,6 +70,7 @@ LANGUAGE_MAP = {
         "bhashini": "ml",
         "sarvam": "ml-IN",
         "google": "ml-IN",
+        "google_voice_name": "ml-IN-Standard-A",
         "azure_voice": "ml-IN-SobhanaNeural",
         "azure_lang": "ml-IN"
     },
@@ -75,6 +78,7 @@ LANGUAGE_MAP = {
         "bhashini": "ta",
         "sarvam": "ta-IN",
         "google": "ta-IN",
+        "google_voice_name": "ta-IN-Standard-A",
         "azure_voice": "ta-IN-PallaviNeural",
         "azure_lang": "ta-IN"
     },
@@ -82,6 +86,7 @@ LANGUAGE_MAP = {
         "bhashini": "te",
         "sarvam": "te-IN",
         "google": "te-IN",
+        "google_voice_name": "te-IN-Standard-A",
         "azure_voice": "te-IN-ShrutiNeural",
         "azure_lang": "te-IN"
     }
@@ -328,10 +333,11 @@ class VoiceAgent:
         try:
             url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={self.google_key}"
             target_lang = LANGUAGE_MAP.get(lang, {}).get("google", "en-IN")
+            voice_name = LANGUAGE_MAP.get(lang, {}).get("google_voice_name", f"{target_lang}-Standard-A")
 
             payload = {
                 "input": {"text": text},
-                "voice": {"languageCode": target_lang, "ssmlGender": "FEMALE"},
+                "voice": {"languageCode": target_lang, "name": voice_name, "ssmlGender": "FEMALE"},
                 "audioConfig": {"audioEncoding": "MP3"}
             }
 
