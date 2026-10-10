@@ -268,7 +268,12 @@ class ReportSakhiApp {
 
         // Controls
         this.simpleModeToggle = document.getElementById("simpleModeToggle");
-        this.langButtons = document.querySelectorAll(".lang-btn");
+        this.languageDropdown = document.getElementById("languageDropdown");
+        this.langDropdownTrigger = document.getElementById("langDropdownTrigger");
+        this.languageOptions = document.getElementById("languageOptions");
+        this.dropdownItems = document.querySelectorAll(".dropdown-item");
+        this.selectedLangScript = document.getElementById("selectedLangScript");
+        this.selectedLangSub = document.getElementById("selectedLangSub");
         this.fileInput = document.getElementById("reportFileInput");
         this.btnScanMain = document.getElementById("btnScanMain");
         this.btnDemoSample = document.getElementById("btnDemoSample");
@@ -345,13 +350,35 @@ class ReportSakhiApp {
     }
 
     bindEvents() {
-        // Language Buttons
-        this.langButtons.forEach(btn => {
-            btn.addEventListener("click", () => {
-                const lang = btn.dataset.lang;
-                this.setLanguage(lang);
+        // Language Dropdown
+        if (this.langDropdownTrigger) {
+            this.langDropdownTrigger.addEventListener("click", (e) => {
+                e.stopPropagation();
+                this.languageDropdown.classList.toggle("open");
+                const isOpen = this.languageDropdown.classList.contains("open");
+                this.langDropdownTrigger.setAttribute("aria-expanded", isOpen);
             });
+        }
+        
+        document.addEventListener("click", (e) => {
+            if (this.languageDropdown && !this.languageDropdown.contains(e.target)) {
+                this.languageDropdown.classList.remove("open");
+                if (this.langDropdownTrigger) {
+                    this.langDropdownTrigger.setAttribute("aria-expanded", "false");
+                }
+            }
         });
+        
+        if (this.dropdownItems) {
+            this.dropdownItems.forEach(item => {
+                item.addEventListener("click", () => {
+                    const lang = item.dataset.lang;
+                    this.languageDropdown.classList.remove("open");
+                    this.langDropdownTrigger.setAttribute("aria-expanded", "false");
+                    this.setLanguage(lang);
+                });
+            });
+        }
 
         // Simple Mode Toggle
         this.simpleModeToggle.addEventListener("change", (e) => {
@@ -521,11 +548,17 @@ class ReportSakhiApp {
     }
 
     applyLanguage(lang) {
-        this.langButtons.forEach(b => {
-            const isActive = b.dataset.lang === lang;
-            b.classList.toggle("active", isActive);
-            b.setAttribute("aria-checked", isActive);
-        });
+        if (this.dropdownItems) {
+            this.dropdownItems.forEach(b => {
+                const isActive = b.dataset.lang === lang;
+                b.classList.toggle("selected", isActive);
+                b.setAttribute("aria-selected", isActive);
+                if (isActive && this.selectedLangScript && this.selectedLangSub) {
+                    this.selectedLangScript.innerText = b.dataset.name;
+                    this.selectedLangSub.innerText = b.dataset.english;
+                }
+            });
+        }
 
         const dict = I18N[lang] || I18N.en;
         for (const [id, text] of Object.entries(dict)) {

@@ -62,13 +62,27 @@
                 </div>
                 <p class="section-hint" id="langSectionHint">Tap to hear explanations in your mother tongue</p>
                 
-                <div class="language-grid" role="radiogroup" aria-label="Select Language">
-                    {% for lang_code, lang_meta in languages.items() %}
-                    <button type="button" class="lang-btn {% if lang_code == 'ml' %}active{% endif %}" data-lang="{{ lang_code }}" role="radio" aria-checked="{% if lang_code == 'ml' %}true{% else %}false{% endif %}">
-                        <span class="lang-script">{{ lang_meta.name }}</span>
-                        <span class="lang-sub">{{ lang_meta.english_name }}</span>
+                <div class="custom-dropdown" id="languageDropdown">
+                    <button class="dropdown-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" id="langDropdownTrigger">
+                        <div class="selected-lang-info">
+                            <span class="lang-script" id="selectedLangScript">മലയാളം</span>
+                            <span class="lang-sub" id="selectedLangSub">Malayalam</span>
+                        </div>
+                        <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </button>
-                    {% endfor %}
+                    <ul class="dropdown-menu" role="listbox" id="languageOptions">
+                        {% for lang_code, lang_meta in languages.items() %}
+                        <li class="dropdown-item {% if lang_code == 'ml' %}selected{% endif %}" 
+                            data-lang="{{ lang_code }}" 
+                            data-name="{{ lang_meta.name }}" 
+                            data-english="{{ lang_meta.english_name }}" 
+                            role="option" 
+                            aria-selected="{% if lang_code == 'ml' %}true{% else %}false{% endif %}">
+                            <span class="lang-script">{{ lang_meta.name }}</span>
+                            <span class="lang-sub">{{ lang_meta.english_name }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </section>
 
