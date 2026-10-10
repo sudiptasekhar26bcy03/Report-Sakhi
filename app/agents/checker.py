@@ -331,7 +331,8 @@ class CheckerAgent:
                     "en": "",
                     "hi": "",
                     "ml": "",
-                    "ta": ""
+                    "ta": "",
+                    "te": ""
                 }
             }
 
@@ -441,27 +442,32 @@ class CheckerAgent:
                     ml_msg = f"{canonical} കഴിഞ്ഞ തവണത്തേക്കാൾ {abs_delta:g} {unit} കുറഞ്ഞു, ഇത് നല്ല മാറ്റമാണ്."
                     hi_msg = f"{canonical} पिछली बार से {abs_delta:g} {unit} कम हुआ है, यह एक अच्छा सुधार है।"
                     ta_msg = f"{canonical} கடந்த முறையை விட {abs_delta:g} {unit} குறைந்துள்ளது, இது நல்ல முன்னேற்றம்."
+                    te_msg = f"{canonical} గత పరీక్ష కంటే {abs_delta:g} {unit} తగ్గింది, ఇది మంచి మెరుగుదల."
                 else:
                     en_msg = f"{canonical} increased by {abs_delta:g} {unit} into a healthier range."
                     ml_msg = f"{canonical} കഴിഞ്ഞ തവണത്തേക്കാൾ {abs_delta:g} {unit} വർദ്ധിച്ച് കൂടുതൽ ആരോഗ്യകരമായ നിലയിലായി."
                     hi_msg = f"{canonical} में {abs_delta:g} {unit} की बढ़ोतरी होकर सुरक्षित स्तर पर आ गया है।"
                     ta_msg = f"{canonical} {abs_delta:g} {unit} அதிகரித்து பாதுகாப்பான நிலைக்கு வந்துள்ளது."
+                    te_msg = f"{canonical} {abs_delta:g} {unit} పెరిగి సురక్షిత స్థాయికి చేరుకుంది."
             elif health_impact == "worsened":
                 if trend_dir == "up":
                     en_msg = f"{canonical} increased by {abs_delta:g} {unit} compared to last time and needs review."
                     ml_msg = f"{canonical} കഴിഞ്ഞ തവണത്തേക്കാൾ {abs_delta:g} {unit} കൂടിയിട്ടുണ്ട്, ഡോക്ടറെ കാണിക്കുന്നത് നന്നായിരിക്കും."
                     hi_msg = f"{canonical} पिछली बार से {abs_delta:g} {unit} बढ़ गया है, डॉक्टर से परामर्श आवश्यक है।"
                     ta_msg = f"{canonical} கடந்த முறையை விட {abs_delta:g} {unit} அதிகரித்துள்ளது, மருத்துவரிடம் காட்டுங்கள்."
+                    te_msg = f"{canonical} గత పరీక్ష కంటే {abs_delta:g} {unit} పెరిగింది, వైద్యుడిని సంప్రదించడం మంచిది."
                 else:
                     en_msg = f"{canonical} dropped by {abs_delta:g} {unit} below optimal level since last time."
                     ml_msg = f"{canonical} കഴിഞ്ഞ തവണത്തേക്കാൾ {abs_delta:g} {unit} കുറഞ്ഞിട്ടുണ്ട്, ശ്രദ്ധിക്കുക."
                     hi_msg = f"{canonical} पिछली बार की तुलना में {abs_delta:g} {unit} कम हुआ है, ध्यान देना जरूरी है।"
                     ta_msg = f"{canonical} கடந்த முறையை விட {abs_delta:g} {unit} குறைந்துள்ளது, கவனம் தேவை."
+                    te_msg = f"{canonical} గత పరీక్ష కంటే {abs_delta:g} {unit} తగ్గింది, శ్రద్ధ వహించండి."
             else:
                 en_msg = f"{canonical} is steady with little change ({delta:+g} {unit})."
                 ml_msg = f"{canonical} കാര്യമായ മാറ്റമില്ലാതെ സ്ഥിരമായി തുടരുന്നു."
                 hi_msg = f"{canonical} बिना किसी बड़े बदलाव के स्थिर बना हुआ है।"
                 ta_msg = f"{canonical} பெரிய மாற்றமின்றி சீராக உள்ளது."
+                te_msg = f"{canonical} పెద్ద మార్పు లేకుండా స్థిరంగా ఉంది."
 
             comparisons.append({
                 "test_name": curr.get("test_name"),
@@ -482,7 +488,8 @@ class CheckerAgent:
                     "en": en_msg,
                     "ml": ml_msg,
                     "hi": hi_msg,
-                    "ta": ta_msg
+                    "ta": ta_msg,
+                    "te": te_msg
                 }
             })
 
@@ -505,6 +512,7 @@ class CheckerAgent:
         spoken_ml_parts = []
         spoken_hi_parts = []
         spoken_ta_parts = []
+        spoken_te_parts = []
 
         if top_improved:
             item = top_improved[0]
@@ -512,6 +520,7 @@ class CheckerAgent:
             spoken_ml_parts.append(item["message"]["ml"])
             spoken_hi_parts.append(item["message"]["hi"])
             spoken_ta_parts.append(item["message"]["ta"])
+            spoken_te_parts.append(item["message"]["te"])
 
         if top_worsened:
             item = top_worsened[0]
@@ -519,12 +528,14 @@ class CheckerAgent:
             spoken_ml_parts.append(item["message"]["ml"])
             spoken_hi_parts.append(item["message"]["hi"])
             spoken_ta_parts.append(item["message"]["ta"])
+            spoken_te_parts.append(item["message"]["te"])
 
         if not top_improved and not top_worsened and comparisons:
             spoken_en_parts.append("Your test numbers are steady compared to your previous report.")
             spoken_ml_parts.append("കഴിഞ്ഞ റിപ്പോർട്ടുമായി താരതമ്യം ചെയ്യുമ്പോൾ പരിശോധനാ ഫലങ്ങൾ സ്ഥിരതയുള്ളതാണ്.")
             spoken_hi_parts.append("आपकी पिछली रिपोर्ट की तुलना में जांच के परिणाम स्थिर बने हुए हैं।")
             spoken_ta_parts.append("உங்கள் முந்தைய அறிக்கையுடன் ஒப்பிடுகையில் பரிசோதனை முடிவுகள் சீராக உள்ளன.")
+            spoken_te_parts.append("మీ మునుపటి నివేదికతో పోలిస్తే పరీక్ష ఫలితాలు స్థిరంగా ఉన్నాయి.")
 
         return {
             "has_comparison": len(comparisons) > 0,
@@ -538,6 +549,7 @@ class CheckerAgent:
                 "en": " ".join(spoken_en_parts),
                 "ml": " ".join(spoken_ml_parts),
                 "hi": " ".join(spoken_hi_parts),
-                "ta": " ".join(spoken_ta_parts)
+                "ta": " ".join(spoken_ta_parts),
+                "te": " ".join(spoken_te_parts)
             }
         }

@@ -48,21 +48,28 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-# Language mapping matrix for Indian speech APIs (Bhashini National Language Mission)
+# Language mapping matrix for speech APIs (Hindi, English, Malayalam, Tamil, Telugu)
 LANGUAGE_MAP = {
-    "ml": {
-        "bhashini": "ml",
-        "sarvam": "ml-IN",
-        "google": "ml-IN",
-        "azure_voice": "ml-IN-SobhanaNeural",
-        "azure_lang": "ml-IN"
-    },
     "hi": {
         "bhashini": "hi",
         "sarvam": "hi-IN",
         "google": "hi-IN",
         "azure_voice": "hi-IN-SwaraNeural",
         "azure_lang": "hi-IN"
+    },
+    "en": {
+        "bhashini": "en",
+        "sarvam": "en-IN",
+        "google": "en-IN",
+        "azure_voice": "en-IN-NeerjaNeural",
+        "azure_lang": "en-IN"
+    },
+    "ml": {
+        "bhashini": "ml",
+        "sarvam": "ml-IN",
+        "google": "ml-IN",
+        "azure_voice": "ml-IN-SobhanaNeural",
+        "azure_lang": "ml-IN"
     },
     "ta": {
         "bhashini": "ta",
@@ -77,69 +84,6 @@ LANGUAGE_MAP = {
         "google": "te-IN",
         "azure_voice": "te-IN-ShrutiNeural",
         "azure_lang": "te-IN"
-    },
-    "kn": {
-        "bhashini": "kn",
-        "sarvam": "kn-IN",
-        "google": "kn-IN",
-        "azure_voice": "kn-IN-SapnaNeural",
-        "azure_lang": "kn-IN"
-    },
-    "bn": {
-        "bhashini": "bn",
-        "sarvam": "bn-IN",
-        "google": "bn-IN",
-        "azure_voice": "bn-IN-TanishaaNeural",
-        "azure_lang": "bn-IN"
-    },
-    "mr": {
-        "bhashini": "mr",
-        "sarvam": "mr-IN",
-        "google": "mr-IN",
-        "azure_voice": "mr-IN-AarohiNeural",
-        "azure_lang": "mr-IN"
-    },
-    "gu": {
-        "bhashini": "gu",
-        "sarvam": "gu-IN",
-        "google": "gu-IN",
-        "azure_voice": "gu-IN-DhwaniNeural",
-        "azure_lang": "gu-IN"
-    },
-    "pa": {
-        "bhashini": "pa",
-        "sarvam": "pa-IN",
-        "google": "pa-IN",
-        "azure_voice": "pa-IN-OjasNeural",
-        "azure_lang": "pa-IN"
-    },
-    "or": {
-        "bhashini": "or",
-        "sarvam": "od-IN",
-        "google": "or-IN",
-        "azure_voice": "or-IN-SubhasiniNeural",
-        "azure_lang": "or-IN"
-    },
-    "as": {
-        "bhashini": "as",
-        "sarvam": "as-IN",
-        "google": "as-IN",
-        "azure_voice": "as-IN-YashicaNeural",
-        "azure_lang": "as-IN"
-    },
-    "ur": {
-        "bhashini": "ur",
-        "sarvam": "ur-IN",
-        "google": "ur-IN",
-        "azure_voice": "ur-IN-GulNeural",
-        "azure_lang": "ur-IN"
-    },
-    "en": {
-        "bhashini": "en",
-        "sarvam": "en-IN",
-        "google": "en-IN",
-        "azure_voice": "en-IN-NeerjaNeural",
-        "azure_lang": "en-IN"
     }
 }
 
@@ -418,9 +362,7 @@ class VoiceAgent:
 
             client = genai.Client(api_key=self.google_key)
             lang_names = {
-                "ml": "Malayalam", "hi": "Hindi", "ta": "Tamil", "te": "Telugu",
-                "kn": "Kannada", "bn": "Bengali", "mr": "Marathi", "gu": "Gujarati",
-                "pa": "Punjabi", "or": "Odia", "as": "Assamese", "ur": "Urdu", "en": "English"
+                "hi": "Hindi", "en": "English", "ml": "Malayalam", "ta": "Tamil", "te": "Telugu"
             }
             lang_label = lang_names.get(lang, "English")
             prompt = f"Read this text clearly and warmly aloud in {lang_label}: {text}"
@@ -741,9 +683,7 @@ class VoiceAgent:
             mime = mime_map.get(detected_format, "audio/wav")
 
             lang_names = {
-                "ml": "Malayalam", "hi": "Hindi", "ta": "Tamil", "te": "Telugu",
-                "kn": "Kannada", "bn": "Bengali", "mr": "Marathi", "gu": "Gujarati",
-                "pa": "Punjabi", "or": "Odia", "as": "Assamese", "ur": "Urdu", "en": "English"
+                "hi": "Hindi", "en": "English", "ml": "Malayalam", "ta": "Tamil", "te": "Telugu"
             }
             lang_label = lang_names.get(lang, "English")
 

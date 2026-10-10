@@ -32,21 +32,13 @@ class Settings(BaseSettings):
     azure_speech_key: Optional[str] = os.getenv("AZURE_SPEECH_KEY", "")
     azure_speech_region: Optional[str] = os.getenv("AZURE_SPEECH_REGION", "centralindia")
 
-    # Supported Native Indian Languages (Bhashini National Language Mission)
+    # Supported Languages: Hindi, English, Malayalam, Tamil, and Telugu
     supported_languages: dict = {
-        "ml": {"name": "മലയാളം", "code": "ml-IN", "english_name": "Malayalam"},
         "hi": {"name": "हिन्दी", "code": "hi-IN", "english_name": "Hindi"},
+        "en": {"name": "English", "code": "en-IN", "english_name": "English"},
+        "ml": {"name": "മലയാളം", "code": "ml-IN", "english_name": "Malayalam"},
         "ta": {"name": "தமிழ்", "code": "ta-IN", "english_name": "Tamil"},
-        "te": {"name": "తెలుగు", "code": "te-IN", "english_name": "Telugu"},
-        "kn": {"name": "ಕನ್ನಡ", "code": "kn-IN", "english_name": "Kannada"},
-        "bn": {"name": "বাংলা", "code": "bn-IN", "english_name": "Bengali"},
-        "mr": {"name": "मराठी", "code": "mr-IN", "english_name": "Marathi"},
-        "gu": {"name": "ગુજરાતી", "code": "gu-IN", "english_name": "Gujarati"},
-        "pa": {"name": "ਪੰਜਾਬੀ", "code": "pa-IN", "english_name": "Punjabi"},
-        "or": {"name": "ଓଡ଼ିଆ", "code": "or-IN", "english_name": "Odia"},
-        "as": {"name": "অসমীয়া", "code": "as-IN", "english_name": "Assamese"},
-        "ur": {"name": "اردو", "code": "ur-IN", "english_name": "Urdu"},
-        "en": {"name": "English", "code": "en-IN", "english_name": "English"}
+        "te": {"name": "తెలుగు", "code": "te-IN", "english_name": "Telugu"}
     }
 
     def get_voice_info(self) -> dict:

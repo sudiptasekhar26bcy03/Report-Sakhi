@@ -228,22 +228,25 @@ class TestVoiceAgent(unittest.TestCase):
 
                 # 2. Ogg container
                 ogg_bytes = b"OggS" + b"TEST_OGG_CONTAINER_AUDIO_BYTES_12345"
-                await agent.speech_to_text(ogg_bytes, language_code="kn")
+                await agent.speech_to_text(ogg_bytes, language_code="ta")
                 self.assertEqual(captured_payload["pipelineTasks"][0]["config"]["audioFormat"], "ogg")
 
                 # 3. MP3 ID3 container
                 mp3_bytes = b"ID3" + b"TEST_MP3_AUDIO_BYTES_123456789012345"
-                await agent.speech_to_text(mp3_bytes, language_code="bn")
+                await agent.speech_to_text(mp3_bytes, language_code="hi")
                 self.assertEqual(captured_payload["pipelineTasks"][0]["config"]["audioFormat"], "mp3")
 
         asyncio.run(run_test())
 
-    def test_all_13_native_languages_mapped(self):
-        """Verifies all 13 native Indian languages are configured in LANGUAGE_MAP and config."""
+    def test_all_5_native_languages_mapped(self):
+        """Verifies exactly 5 native languages (Hindi, English, Malayalam, Tamil, Telugu) are configured."""
         from app.agents.voice import LANGUAGE_MAP
         from app.config import settings
 
-        required_langs = ["ml", "hi", "ta", "te", "kn", "bn", "mr", "gu", "pa", "or", "as", "ur", "en"]
+        required_langs = ["hi", "en", "ml", "ta", "te"]
+        self.assertEqual(len(required_langs), 5)
+        self.assertEqual(len(LANGUAGE_MAP), 5)
+        self.assertEqual(len(settings.supported_languages), 5)
         for code in required_langs:
             self.assertIn(code, LANGUAGE_MAP, f"Language {code} missing in LANGUAGE_MAP")
             self.assertIn(code, settings.supported_languages, f"Language {code} missing in supported_languages")
