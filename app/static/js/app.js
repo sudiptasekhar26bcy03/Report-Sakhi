@@ -899,7 +899,16 @@ class ReportSakhiApp {
         // Include latest previous report from localStorage history if present
         const history = this.getHistory();
         if (history.length > 0) {
-            const previousReport = history[history.length - 1];
+            const mergedItems = {};
+            history.forEach(rep => {
+                (rep.items || []).forEach(item => {
+                    const key = item.rule_key || item.canonical_name || item.test_name;
+                    if (key) {
+                        mergedItems[key] = item;
+                    }
+                });
+            });
+            const previousReport = { items: Object.values(mergedItems) };
             formData.append("previous_report", JSON.stringify(previousReport));
         }
 
