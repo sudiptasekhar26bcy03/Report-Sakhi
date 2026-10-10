@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0d47a1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>ReportSakhi - Your Medical Report Friend</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-light">
+    <div class="app-container" id="appContainer">
+        <!-- Top Navigation Bar -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-logo" aria-hidden="true">
+                    <span class="logo-circle green"></span>
+                    <span class="logo-circle yellow"></span>
+                    <span class="logo-circle red"></span>
+                </div>
+                <div class="brand-text">
+                    <h1 class="brand-title">ReportSakhi</h1>
+                    <p class="brand-tagline" id="brandTagline">Your AI health friend</p>
+                </div>
+            </div>
+
+            <!-- Simple Mode Toggle -->
+            <div class="simple-mode-control">
+                <label class="switch-container" for="simpleModeToggle">
+                    <input type="checkbox" id="simpleModeToggle" role="switch" aria-checked="false">
+                    <span class="switch-slider"></span>
+                </label>
+                <div class="simple-mode-label">
+                    <span class="mode-text-primary" id="simpleModeText">Simple Mode</span>
+                    <span class="mode-text-sub" id="simpleModeSub">Large icons & audio</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Home View -->
+        <main class="main-content" id="mainHomeView">
+            
+            <!-- Language Picker Card -->
+            <section class="card language-card" aria-labelledby="langSectionTitle">
+                <div class="section-header">
+                    <span class="section-icon">🌐</span>
+                    <h2 class="section-title" id="langSectionTitle">Choose Your Language</h2>
+                </div>
+                <p class="section-hint" id="langSectionHint">Tap to hear explanations in your mother tongue</p>
+                
+                <div class="language-grid" role="radiogroup" aria-label="Select Language">
+                    {% for lang_code, lang_meta in languages.items() %}
+                    <button type="button" class="lang-btn {% if lang_code == 'ml' %}active{% endif %}" data-lang="{{ lang_code }}" role="radio" aria-checked="{% if lang_code == 'ml' %}true{% else %}false{% endif %}">
+                        <span class="lang-script">{{ lang_meta.name }}</span>
+                        <span class="lang-sub">{{ lang_meta.english_name }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Prominent Scan Hero Section -->
+            <section class="scan-hero-card">
+                <div class="scan-visual" aria-hidden="true">
+                    <div class="scanner-laser"></div>
+                    <div class="doc-icon">📄</div>
+                </div>
+
+                <div class="scan-instructions">
+                    <h2 class="scan-heading" id="scanHeading">Scan Your Lab Report</h2>
+                    <p class="scan-subheading" id="scanSubheading">Take a clear photo of blood, sugar, or urine test results</p>
+                </div>
+
+                <!-- Hidden file input triggered by big button -->
+                <input type="file" id="reportFileInput" accept="image/*" capture="environment" class="visually-hidden">
+
+                <!-- Giant Touch-Friendly Scan Button -->
+                <button type="button" class="btn-scan-main" id="btnScanMain" aria-label="Scan Report Photo">
+                    <div class="scan-btn-icon-wrapper">
+                        <svg class="camera-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                    </div>
+                    <span class="scan-btn-text" id="scanBtnLabel">SCAN REPORT</span>
+                    <span class="scan-btn-sub" id="scanBtnSub">Camera or Gallery</span>
+                </button>
+
+                <!-- Demo sample quick button -->
+                <button type="button" class="btn-demo-sample" id="btnDemoSample">
+                    ⚡ <span id="demoSampleText">Or Try Sample Report (CBC + Sugar)</span>
+                </button>
+            </section>
+
+            <!-- Three Pillars Feature Highlights -->
+            <section class="quick-highlights">
+                <div class="highlight-item">
+                    <div class="highlight-badge green-bg">✓</div>
+                    <span id="hl1">Safe Medical Ranges</span>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-badge yellow-bg">🔊</div>
+                    <span id="hl2">Spoken Voice Advice</span>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-badge red-bg">🏥</div>
+                    <span id="hl3">Nearest Hospital Finder</span>
+                </div>
+            </section>
+        </main>
+
+        <!-- Loading State View -->
+        <section class="loading-overlay" id="loadingOverlay" style="display: none;" aria-live="polite">
+            <div class="loading-box">
+                <div class="pulse-ring"></div>
+                <div class="loading-icon">🔍</div>
+                <h3 class="loading-title" id="loadingTitle">Reading Lab Report...</h3>
+                <p class="loading-agent-step" id="loadingStep">Reader Agent extracting values</p>
+            </div>
+        </section>
+
+        <!-- Blurry / Unclear Photo Retake Modal -->
+        <section class="retake-modal-overlay" id="retakeModal" style="display: none;" role="alertdialog" aria-modal="true" aria-labelledby="retakeModalTitle">
+            <div class="retake-modal-card">
+                <div class="retake-modal-icon-badge">📷⚠️</div>
+                <h3 class="retake-modal-title" id="retakeModalTitle">Photo Is Blurry</h3>
+                <p class="retake-modal-desc" id="retakeModalDesc">
+                    We cannot clearly read the numbers on this report. For your medical safety, we do not guess lab test results. Please retake the photo with good lighting and steady focus.
+                </p>
+                <div class="retake-modal-actions">
+                    <button type="button" class="btn-retake-action" id="btnRetakePhoto">
+                        📷 <span id="btnRetakeLabel">Retake Photo</span>
+                    </button>
+                    <button type="button" class="btn-retake-cancel" id="btnDismissRetake">
+                        <span id="btnCancelRetakeLabel">Close</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results View Modal / Overlay -->
+        <section class="results-container" id="resultsContainer" style="display: none;" aria-live="polite">
+            
+            <!-- Result Top Toolbar -->
+            <div class="results-header">
+                <button type="button" class="btn-back-home" id="btnBackHome">
+                    ← <span id="backBtnText">New Scan</span>
+                </button>
+                <div class="urgency-pill" id="urgencyPill">
+                    <span class="urgency-dot"></span>
+                    <span id="urgencyPillText">Normal</span>
+                </div>
+            </div>
+
+            <!-- Big Voice Listen Bar -->
+            <div class="audio-banner" id="audioBanner">
+                <button type="button" class="btn-listen-large" id="btnListenAudio">
+                    <span class="listen-icon" id="listenIcon">🔊</span>
+                    <div class="listen-info">
+                        <span class="listen-title" id="listenButtonLabel">Listen to Explanation</span>
+                        <span class="listen-hint" id="listenButtonHint">Spoken in your language</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Friendly Explanation Text Card -->
+            <article class="card explanation-card">
+                <h3 class="explanation-title" id="explanationHeadline">Summary of Your Results</h3>
+                <p class="explanation-body" id="explanationText"></p>
+                
+                <!-- Mandatory Safety Line -->
+                <div class="safety-banner" role="alert">
+                    <span class="safety-icon">⚠️</span>
+                    <p class="safety-text" id="safetyLineText">This explains your report. It is not a diagnosis. Please consult a doctor.</p>
+                </div>
+            </article>
+
+            <!-- Colour Coded Result Cards List with Attached Large Listen Bar -->
+            <section class="tests-list-section" id="testsListSection">
+                <div class="cards-listen-attachment">
+                    <button type="button" class="btn-attached-listen" id="btnAttachedListen" aria-label="Listen to Lab Results">
+                        <span class="listen-pulse-icon" id="attachedListenIcon">🔊</span>
+                        <div class="listen-attached-labels">
+                            <span class="listen-attached-main" id="attachedListenMain">LISTEN TO RESULTS</span>
+                            <span class="listen-attached-sub" id="attachedListenSub">Tap to hear all results explained by voice</span>
+                        </div>
+                        <span class="audio-waves-indicator" id="attachedAudioWaves" aria-hidden="true">
+                            <span class="bar bar-1"></span>
+                            <span class="bar bar-2"></span>
+                            <span class="bar bar-3"></span>
+                        </span>
+                    </button>
+                </div>
+
+                <h3 class="tests-heading" id="testsSectionHeading">Report Values & Safety Check</h3>
+                <div class="tests-grid" id="testsGrid">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </section>
+
+            <!-- Find Help / Hospital Finder Section (Triggered by Red or Yellow Results via MCP find_nearby_help) -->
+            <section class="card hospital-finder-card" id="hospitalFinderSection" style="display: none;">
+                <div class="hospital-urgency-header">
+                    <span class="hospital-urgency-pill" id="helpUrgencyBadge">URGENT</span>
+                    <span class="hospital-badge-icon" id="helpBadgeIcon">🏥</span>
+                </div>
+                <div class="hospital-header">
+                    <div>
+                        <h3 class="hospital-title" id="hospitalTitle">Consult a Doctor Nearby</h3>
+                        <p class="hospital-advice" id="hospitalAdvice">One tap opens turn-by-turn map directions to health centers</p>
+                    </div>
+                </div>
+
+                <!-- Primary Map Link Button (Generated dynamically by MCP find_nearby_help) -->
+                <a href="https://www.google.com/maps/search/hospitals+near+me" target="_blank" rel="noopener noreferrer" class="btn-hospital-action" id="btnOpenHospitalMap">
+                    <span class="map-action-icon">📍</span>
+                    <span id="hospitalActionText">Open Map: Nearest Hospitals & Clinics</span>
+                </a>
+
+                <!-- Emergency Helplines (108 / 104 / 112) -->
+                <div class="helplines-container" id="helplinesContainer">
+                    <span class="helplines-title">Free Emergency Helplines:</span>
+                    <div class="helplines-grid">
+                        <a href="tel:108" class="helpline-btn emergency-108">
+                            <span class="hl-num">108</span>
+                            <span class="hl-name">Ambulance</span>
+                        </a>
+                        <a href="tel:104" class="helpline-btn health-104">
+                            <span class="hl-num">104</span>
+                            <span class="hl-name">Health Helpline</span>
+                        </a>
+                        <a href="tel:112" class="helpline-btn national-112">
+                            <span class="hl-num">112</span>
+                            <span class="hl-name">Emergency</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Voice Q&A / Ask a question via Voice Agent & Explainer Agent -->
+            <section class="card ask-question-card">
+                <div class="ask-card-header">
+                    <span class="ask-header-icon">💬</span>
+                    <div>
+                        <h3 class="ask-title" id="askSectionTitle">Have a question?</h3>
+                        <p class="ask-sub" id="askSectionSub">Tap the mic to ask anything about your report</p>
+                    </div>
+                </div>
+
+                <!-- Large Hero Microphone Button -->
+                <div class="hero-mic-wrapper">
+                    <button type="button" class="btn-hero-mic" id="btnHeroMic" aria-label="Tap to ask question by voice">
+                        <div class="mic-ripple-ring"></div>
+                        <span class="hero-mic-icon" id="heroMicIcon">🎙️</span>
+                    </button>
+                    <span class="hero-mic-caption" id="heroMicCaption">Tap to Speak Your Question</span>
+                    <span class="hero-mic-hint" id="heroMicHint">Spoken answers in your mother tongue</span>
+                </div>
+
+                <!-- Text Question Fallback -->
+                <div class="ask-text-fallback">
+                    <input type="text" class="ask-input" id="askTextInput" placeholder="Or type e.g. Is my sugar high?">
+                    <button type="button" class="btn-ask-send" id="btnSendQuestion">Ask</button>
+                </div>
+
+                <!-- Live Voice Answer Box with Replay -->
+                <div class="ask-reply-box" id="askReplyBox" style="display: none;">
+                    <div class="user-question-echo" id="userQuestionEcho" style="display: none;">
+                        <span class="echo-label">You asked:</span>
+                        <p class="echo-text" id="echoText"></p>
+                    </div>
+                    <div class="ai-reply-content">
+                        <div class="reply-header">
+                            <span class="reply-sakhi-badge">🌸 Sakhi</span>
+                            <button type="button" class="btn-replay-audio" id="btnReplayAudio" aria-label="Play answer audio">
+                                🔊 <span id="replayBtnLabel">Listen</span>
+                            </button>
+                        </div>
+                        <p class="ask-reply-text" id="askReplyText"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer Padding for Mobile Scrolling -->
+            <div class="spacer-bottom"></div>
+        </section>
+
+        <!-- Bottom Status Bar -->
+        <footer class="app-footer">
+            <span class="footer-tag">ReportSakhi • AI Health Friend for Bharat</span>
+        </footer>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

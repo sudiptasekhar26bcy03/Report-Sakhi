@@ -1,0 +1,133 @@
+{
+  "version": "1.0.0",
+  "source": "Standard Indian Clinical Reference Ranges (Adult)",
+  "disclaimer": "Reference ranges are indicative standard adult limits. Values must be verified by a medical professional.",
+  "tests": {
+    "hemoglobin": {
+      "canonical_name": "Hemoglobin (Hb)",
+      "aliases": ["hemoglobin", "haemoglobin", "hb", "hgb"],
+      "unit": "g/dL",
+      "normal": { "min": 12.0, "max": 17.5 },
+      "critical_low": 7.0,
+      "critical_high": 20.0,
+      "description": {
+        "en": "Carries oxygen in your blood",
+        "hi": "खून में ऑक्सीजन पहुंचाने वाला तत्व",
+        "ml": "രക്തത്തിൽ ഓക്സിജൻ എത്തിക്കുന്ന ഘടകം",
+        "ta": "இரத்தத்தில் ஆக்ஸிஜனை எடுத்துச் செல்லும் மூலக்கூறு"
+      }
+    },
+    "fasting_blood_sugar": {
+      "canonical_name": "Fasting Blood Sugar (FBS)",
+      "aliases": ["fasting blood sugar", "fbs", "fasting glucose", "glucose fasting", "blood sugar fasting"],
+      "unit": "mg/dL",
+      "normal": { "min": 70.0, "max": 100.0 },
+      "critical_low": 50.0,
+      "critical_high": 250.0,
+      "description": {
+        "en": "Sugar level before eating in the morning",
+        "hi": "सुबह बिना खाए खून में शर्करा का स्तर",
+        "ml": "രാവിലെ ഭക്ഷണം കഴിക്കുന്നതിന് മുമ്പുള്ള പഞ്ചസാരയുടെ അളവ്",
+        "ta": "காலையில் உணவு உண்பதற்கு முன் இரத்தத்தில் உள்ள சர்க்கரை அளவு"
+      }
+    },
+    "post_prandial_blood_sugar": {
+      "canonical_name": "Post Prandial Blood Sugar (PPBS)",
+      "aliases": ["post prandial blood sugar", "ppbs", "glucose pp", "blood sugar pp"],
+      "unit": "mg/dL",
+      "normal": { "min": 90.0, "max": 140.0 },
+      "critical_low": 60.0,
+      "critical_high": 300.0,
+      "description": {
+        "en": "Sugar level 2 hours after a meal",
+        "hi": "खाना खाने के 2 घंटे बाद शर्करा का स्तर",
+        "ml": "ഭക്ഷണം കഴിഞ്ഞ് 2 മണിക്കൂറിന് ശേഷമുള്ള പഞ്ചസാര",
+        "ta": "சாப்பிட்ட 2 மணி நேரத்திற்குப் பின் சர்க்கரை அளவு"
+      }
+    },
+    "hba1c": {
+      "canonical_name": "HbA1c (3-Month Sugar)",
+      "aliases": ["hba1c", "glycated hemoglobin", "glycosylated hemoglobin"],
+      "unit": "%",
+      "normal": { "min": 4.0, "max": 5.6 },
+      "critical_low": 3.5,
+      "critical_high": 10.0,
+      "description": {
+        "en": "Average blood sugar over the last 3 months",
+        "hi": "पिछले 3 महीनों का औसत ब्लड शुगर",
+        "ml": "കഴിഞ്ഞ 3 മാസത്തെ ശരാശരി രക്തത്തിലെ പഞ്ചസാര",
+        "ta": "கடந்த 3 மாதங்களின் சராசரி இரத்த சர்க்கரை அளவு"
+      }
+    },
+    "wbc": {
+      "canonical_name": "Total WBC Count",
+      "aliases": ["wbc", "total leukocyte count", "tlc", "white blood cell count"],
+      "unit": "/cumm",
+      "normal": { "min": 4000.0, "max": 11000.0 },
+      "critical_low": 2000.0,
+      "critical_high": 30000.0,
+      "description": {
+        "en": "Infection fighting defense cells in blood",
+        "hi": "रोगों से लड़ने वाली श्वेत रक्त कोशिकाएं",
+        "ml": "രോഗപ്രതിരോധത്തിന് സഹായിക്കുന്ന രക്താണുക്കൾ",
+        "ta": "நோய் எதிர்ப்பு வெள்ளை இரத்த அணுக்கள்"
+      }
+    },
+    "platelets": {
+      "canonical_name": "Platelet Count",
+      "aliases": ["platelet count", "platelets", "plt"],
+      "unit": "lakhs/cumm",
+      "normal": { "min": 1.5, "max": 4.5 },
+      "critical_low": 0.5,
+      "critical_high": 10.0,
+      "description": {
+        "en": "Cells that help blood clot when injured",
+        "hi": "चोट लगने पर खून रोकने वाली कोशिकाएं",
+        "ml": "മുറിവേറ്റാൽ രക്തം കട്ടപിടിക്കാൻ സഹായിക്കുന്ന ഘടകം",
+        "ta": "இரத்தம் உறைவதற்கு உதவும் தட்டணுக்கள்"
+      }
+    },
+    "tsh": {
+      "canonical_name": "TSH (Thyroid Stimulating Hormone)",
+      "aliases": ["tsh", "thyroid stimulating hormone", "ultra tsh"],
+      "unit": "uIU/mL",
+      "normal": { "min": 0.4, "max": 4.5 },
+      "critical_low": 0.05,
+      "critical_high": 20.0,
+      "description": {
+        "en": "Thyroid hormone controlling body energy & metabolism",
+        "hi": "शरीर की ऊर्जा नियंत्रित करने वाला थायराइड हार्मोन",
+        "ml": "ശരീരത്തിന്റെ പ്രവർത്തനവേഗത നിയന്ത്രിക്കുന്ന തൈറോയ്ഡ് ഹോർമോൺ",
+        "ta": "உடல் ஆற்றலைக் கட்டுப்படுத்தும் தைராய்டு ஹார்மோன்"
+      }
+    },
+    "serum_creatinine": {
+      "canonical_name": "Serum Creatinine",
+      "aliases": ["serum creatinine", "creatinine"],
+      "unit": "mg/dL",
+      "normal": { "min": 0.6, "max": 1.2 },
+      "critical_low": 0.3,
+      "critical_high": 4.0,
+      "description": {
+        "en": "Kidney filter function test",
+        "hi": "गुर्दे (किडनी) की कार्यप्रणाली की जांच",
+        "ml": "വൃക്കകളുടെ (കിഡ്നി) പ്രവർത്തനം പരിശോധിക്കുന്ന അളവ്",
+        "ta": "சிறுநீரகத்தின் செயல்பாட்டை குறிக்கும் அளவு"
+      }
+    },
+    "total_cholesterol": {
+      "canonical_name": "Total Cholesterol",
+      "aliases": ["total cholesterol", "cholesterol"],
+      "unit": "mg/dL",
+      "normal": { "min": 125.0, "max": 200.0 },
+      "critical_low": 80.0,
+      "critical_high": 300.0,
+      "description": {
+        "en": "Total fat amount in your blood vessels",
+        "hi": "रक्त में कुल वसा (फैट) की मात्रा",
+        "ml": "രക്തത്തിലെ ആകെ കൊഴുപ്പിന്റെ അളവ്",
+        "ta": "இரத்தத்தில் உள்ள மொத்த கொழுப்பின் அளவு"
+      }
+    }
+  }
+}

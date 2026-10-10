@@ -1,0 +1,5 @@
+{
+  "venvPath": "/Applications/Report Sakhi",
+  "venv": ".venv",
+  "extraPaths": ["app"]
+}
