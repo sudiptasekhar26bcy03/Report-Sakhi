@@ -212,77 +212,93 @@ class ReaderAgent:
                     temperature=0.1
                 )
 
-                model_name = getattr(self, "model", None) or os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
-                if hasattr(self.client, "aio") and self.client.aio:
-                    response = await self.client.aio.models.generate_content(
-                        model=model_name,
-                        contents=contents,
-                        config=config
-                    )
-                else:
-                    import asyncio
-                    response = await asyncio.to_thread(
-                        self.client.models.generate_content,
-                        model=model_name,
-                        contents=contents,
-                        config=config
-                    )
+                candidate_models = [
+                    getattr(self, "model", None) or os.getenv("GEMINI_MODEL", "gemini-flash-latest"),
+                    "gemini-flash-latest",
+                    "gemini-3.1-flash-lite",
+                    "gemini-flash-lite-latest",
+                    "gemini-3.5-flash"
+                ]
+                models_to_try = []
+                for m in candidate_models:
+                    if m and m not in models_to_try:
+                        models_to_try.append(m)
 
-                raw_json = response.text or "{}"
-                parsed = json.loads(raw_json)
-
-                # Clean and deduplicate extracted tests list
-                clean_tests: List[Dict[str, Any]] = []
-                seen_tests = set()
-                for item in parsed.get("tests", []):
-                    test_name = str(item.get("test_name", "")).strip()
-                    val = item.get("value")
-                    unit = str(item.get("unit", "")).strip()
-                    ref_range = str(item.get("reference_range", "") or "").strip()
-                    flag = str(item.get("flag", "") or "").strip()
-
+                response = None
+                last_err = None
+                for model_candidate in models_to_try:
                     try:
-                        if isinstance(val, str):
-                            val = val.replace(",", "").strip()
-                        num_val = float(val)
-                        if test_name:
-                            norm_name = re.sub(r"[^a-z0-9]", "", test_name.lower())
-                            if norm_name in seen_tests:
-                                continue
-                            seen_tests.add(norm_name)
-                            clean_tests.append({
-                                "test_name": test_name,
-                                "value": num_val,
-                                "unit": unit,
-                                "reference_range": ref_range,
-                                "flag": flag
-                            })
-                    except (ValueError, TypeError):
+                        import asyncio
+                        response = await asyncio.to_thread(
+                            self.client.models.generate_content,
+                            model=model_candidate,
+                            contents=contents,
+                            config=config
+                        )
+                        if response and response.text:
+                            logger.info(f"Gemini document extraction succeeded using model: {model_candidate}")
+                            break
+                    except Exception as me:
+                        last_err = me
+                        logger.warning(f"Gemini model '{model_candidate}' extraction failed: {me}. Trying next candidate...")
                         continue
 
-                status = parsed.get("status", "success")
-                is_clear = parsed.get("is_clear", True)
-                message = parsed.get("message", "")
+                if response and response.text:
+                    raw_json = response.text or "{}"
+                    parsed = json.loads(raw_json)
 
-                if not clean_tests and status == "success":
-                    # If image was clear but no numeric tests were detected
-                    message = message or "No measurable numerical lab tests could be identified in this report."
+                    # Clean and deduplicate extracted tests list
+                    clean_tests: List[Dict[str, Any]] = []
+                    seen_tests = set()
+                    for item in parsed.get("tests", []):
+                        test_name = str(item.get("test_name", "")).strip()
+                        val = item.get("value")
+                        unit = str(item.get("unit", "")).strip()
+                        ref_range = str(item.get("reference_range", "") or "").strip()
+                        flag = str(item.get("flag", "") or "").strip()
 
-                doc_type_label = "pdf" if has_pdf else ("multiple_images" if len(documents) > 1 else "image")
-                page_count = pdf_page_count if has_pdf else len(documents)
+                        try:
+                            if isinstance(val, str):
+                                val = val.replace(",", "").strip()
+                            num_val = float(val)
+                            if test_name:
+                                norm_name = re.sub(r"[^a-z0-9]", "", test_name.lower())
+                                if norm_name in seen_tests:
+                                    continue
+                                seen_tests.add(norm_name)
+                                clean_tests.append({
+                                    "test_name": test_name,
+                                    "value": num_val,
+                                    "unit": unit,
+                                    "reference_range": ref_range,
+                                    "flag": flag
+                                })
+                        except (ValueError, TypeError):
+                            continue
 
-                return {
-                    "status": status,
-                    "is_clear": is_clear,
-                    "message": message,
-                    "tests": clean_tests,
-                    "document_type": doc_type_label,
-                    "page_count": page_count
-                }
+                    status = parsed.get("status", "success")
+                    is_clear = parsed.get("is_clear", True)
+                    message = parsed.get("message", "")
+
+                    if not clean_tests and status == "success":
+                        message = message or "No measurable numerical lab tests could be identified in this report."
+
+                    doc_type_label = "pdf" if has_pdf else ("multiple_images" if len(documents) > 1 else "image")
+                    page_count = pdf_page_count if has_pdf else len(documents)
+
+                    return {
+                        "status": status,
+                        "is_clear": is_clear,
+                        "message": message,
+                        "tests": clean_tests,
+                        "document_type": doc_type_label,
+                        "page_count": page_count
+                    }
+                else:
+                    logger.error(f"All Gemini models exhausted for document extraction. Last error: {last_err}")
 
             except Exception as e:
                 logger.error(f"Gemini document extraction error: {e}")
-                # If digital text from pypdf is available, attempt local text extraction fallback
                 if pdf_extracted_text:
                     digital_tests = self._extract_tests_from_digital_text(pdf_extracted_text)
                     if digital_tests:
@@ -308,9 +324,22 @@ class ReaderAgent:
                     "page_count": pdf_page_count
                 }
 
-        # Built-in demo fallback for local testing & demonstrations
-        logger.info("Using built-in sample extraction for local demonstration / test mode")
-        return self._fallback_demo_extractor(first_bytes)
+        # Only use demo mock extractor for explicit DEMO payloads (unit tests)
+        if first_bytes.startswith(b"DEMO"):
+            logger.info("Using built-in sample extraction for test mode")
+            return self._fallback_demo_extractor(first_bytes)
+
+        # For real documents, report clear retake request instead of silently fabricating fake test data
+        doc_type_label = "pdf" if has_pdf else ("multiple_images" if len(documents) > 1 else "image")
+        page_count = pdf_page_count if has_pdf else len(documents)
+        return {
+            "status": "retake_required",
+            "is_clear": False,
+            "message": "We could not read the lab report clearly. Please upload a clear digital PDF or take a bright, focused photo of the report.",
+            "tests": [],
+            "document_type": doc_type_label,
+            "page_count": page_count
+        }
 
     def _extract_tests_from_digital_text(self, text: str) -> List[Dict[str, Any]]:
         """
@@ -405,8 +434,8 @@ class ReaderAgent:
                 "page_count": 2
             }
 
-        # If payload is marked DEMO or has reasonable test payload size
-        if doc_bytes.startswith(b"DEMO") or len(doc_bytes) >= 100:
+        # If payload is marked DEMO
+        if doc_bytes.startswith(b"DEMO"):
             demo_tests = [
                 {"test_name": "Hemoglobin", "value": 10.4, "unit": "g/dL", "reference_range": "12 - 16", "flag": "L"},
                 {"test_name": "Fasting Blood Sugar", "value": 148.0, "unit": "mg/dL", "reference_range": "70 - 100", "flag": "H"},

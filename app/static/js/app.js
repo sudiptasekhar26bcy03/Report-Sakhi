@@ -1025,29 +1025,59 @@ class ReportSakhiApp {
         // Extract historical values for this metric from localStorage
         const history = this.getHistory();
         const dataPoints = [];
-        const labels = [];
+        const rawDates = [];
+
+        // Robust matching across history records (fuzzy on rule_key, canonical_name, test_name)
+        const clean = str => (str || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        const targetRuleKey = (item.rule_key && item.rule_key !== "custom_lab_test") ? item.rule_key : null;
+        const targetCanon = clean(item.canonical_name);
+        const targetName = clean(item.test_name);
+
+        const isMatch = t => {
+            if (!t) return false;
+            if (targetRuleKey && t.rule_key && t.rule_key !== "custom_lab_test" && t.rule_key === targetRuleKey) {
+                return true;
+            }
+            const tCanon = clean(t.canonical_name);
+            const tName = clean(t.test_name);
+            if (targetCanon && (targetCanon === tCanon || targetCanon === tName)) return true;
+            if (targetName && (targetName === tCanon || targetName === tName)) return true;
+            if (targetCanon && tCanon && (targetCanon.includes(tCanon) || tCanon.includes(targetCanon)) && Math.min(targetCanon.length, tCanon.length) >= 4) return true;
+            if (targetCanon && tName && (targetCanon.includes(tName) || tName.includes(targetCanon)) && Math.min(targetCanon.length, tName.length) >= 4) return true;
+            if (targetName && tName && (targetName.includes(tName) || tName.includes(targetName)) && Math.min(targetName.length, tName.length) >= 4) return true;
+            return false;
+        };
 
         history.forEach(h => {
-            const found = (h.items || []).find(t =>
-                (t.rule_key && t.rule_key === item.rule_key) ||
-                (t.canonical_name && t.canonical_name.toLowerCase() === item.canonical_name.toLowerCase()) ||
-                (t.test_name && t.test_name.toLowerCase() === item.test_name.toLowerCase())
-            );
+            const found = (h.items || []).find(isMatch);
             if (found && typeof found.value === "number") {
-                labels.push(h.dateStr || "Past Test");
+                rawDates.push(h.dateStr || "");
                 dataPoints.push(found.value);
             }
         });
 
-        // Ensure at least previous & current points exist
-        if (dataPoints.length < 2) {
-            labels.length = 0;
-            dataPoints.length = 0;
-            labels.push(this.currentLang === "ml" ? "മുൻ റിപ്പോർട്ട്" : (this.currentLang === "hi" ? "पिछली जांच" : "Previous Test"));
+        // Ensure at least previous & current points exist if history had incomplete records
+        if (dataPoints.length === 0 && item.previous_value !== undefined && item.current_value !== undefined) {
             dataPoints.push(item.previous_value);
-            labels.push(this.currentLang === "ml" ? "ഇന്നത്തെ റിപ്പോർട്ട്" : (this.currentLang === "hi" ? "आज की जांच" : "Current Test"));
             dataPoints.push(item.current_value);
+            rawDates.push("Previous Test");
+            rawDates.push("Current Test");
+        } else if (dataPoints.length === 1 && item.previous_value !== undefined && Math.abs(dataPoints[0] - item.current_value) < 0.001) {
+            dataPoints.unshift(item.previous_value);
+            rawDates.unshift("Previous Test");
         }
+
+        // Generate clean chronological labels (Test #1, Test #2, Test #3, etc.)
+        const labels = dataPoints.map((val, idx) => {
+            const isLast = idx === dataPoints.length - 1;
+            const testNum = idx + 1;
+            const d = rawDates[idx] || "";
+            if (isLast) {
+                const latestLabel = this.currentLang === "ml" ? "ഇന്നത്തെ പരിശോധന" : (this.currentLang === "hi" ? "आज की जांच" : "Current Test");
+                return d ? `Test #${testNum} (${latestLabel})` : `Test #${testNum} (${latestLabel})`;
+            }
+            return d ? `Test #${testNum} (${d})` : `Test #${testNum}`;
+        });
 
         const isImproved = item.health_impact === "improved";
         const isWorsened = item.health_impact === "worsened";

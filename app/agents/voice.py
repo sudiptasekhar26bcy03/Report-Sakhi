@@ -747,14 +747,22 @@ class VoiceAgent:
             }
             lang_label = lang_names.get(lang, "English")
 
-            response = await asyncio.to_thread(
-                client.models.generate_content,
-                model="gemini-3.5-flash",
-                contents=[
-                    types.Part.from_bytes(data=audio_bytes, mime_type=mime),
-                    f"Transcribe the patient's spoken words verbatim in {lang_label}. Return ONLY the transcribed text without commentary."
-                ]
-            )
+            stt_models = ["gemini-flash-latest", "gemini-3.1-flash-lite", "gemini-flash-lite-latest", "gemini-3.5-flash"]
+            response = None
+            for stt_model in stt_models:
+                try:
+                    response = await asyncio.to_thread(
+                        client.models.generate_content,
+                        model=stt_model,
+                        contents=[
+                            types.Part.from_bytes(data=audio_bytes, mime_type=mime),
+                            f"Transcribe the patient's spoken words verbatim in {lang_label}. Return ONLY the transcribed text without commentary."
+                        ]
+                    )
+                    if response and response.text:
+                        break
+                except Exception:
+                    continue
             if response and response.text:
                 transcript = response.text.strip()
                 if transcript:

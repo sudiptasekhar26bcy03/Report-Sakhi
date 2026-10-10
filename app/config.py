@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     version: str = "1.0.0"
     gemini_api_key: Optional[str] = os.getenv("GEMINI_API_KEY", "")
 
-    gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+    gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 
     # Single VOICE_PROVIDER setting for one-line failover switching:
     # "google", "browser", "bhashini", "sarvam", "azure"

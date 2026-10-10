@@ -132,27 +132,40 @@ Format output strictly as JSON with keys:
                 # pyrefly: ignore [missing-import]
                 from google.genai import types
 
-                model_name = getattr(self, "model", None) or os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
-                if hasattr(self.client, "aio") and self.client.aio:
-                    response = await self.client.aio.models.generate_content(
-                        model=model_name,
-                        contents=prompt,
-                        config=types.GenerateContentConfig(
-                            response_mime_type="application/json",
-                            temperature=0.1
+                candidate_models = [
+                    getattr(self, "model", None) or os.getenv("GEMINI_MODEL", "gemini-flash-latest"),
+                    "gemini-flash-latest",
+                    "gemini-3.1-flash-lite",
+                    "gemini-flash-lite-latest",
+                    "gemini-3.5-flash"
+                ]
+                models_to_try = []
+                for m in candidate_models:
+                    if m and m not in models_to_try:
+                        models_to_try.append(m)
+
+                response = None
+                for model_candidate in models_to_try:
+                    try:
+                        import asyncio
+                        response = await asyncio.to_thread(
+                            self.client.models.generate_content,
+                            model=model_candidate,
+                            contents=prompt,
+                            config=types.GenerateContentConfig(
+                                response_mime_type="application/json",
+                                temperature=0.1
+                            )
                         )
-                    )
-                else:
-                    import asyncio
-                    response = await asyncio.to_thread(
-                        self.client.models.generate_content,
-                        model=model_name,
-                        contents=prompt,
-                        config=types.GenerateContentConfig(
-                            response_mime_type="application/json",
-                            temperature=0.1
-                        )
-                    )
+                        if response and response.text:
+                            logger.info(f"Gemini explanation succeeded using model: {model_candidate}")
+                            break
+                    except Exception as me:
+                        logger.warning(f"Explainer model '{model_candidate}' failed: {me}. Trying next candidate...")
+                        continue
+
+                if not response or not response.text:
+                    raise RuntimeError("All candidate Gemini models failed for explanation.")
 
                 parsed = json.loads(response.text or "{}")
 
@@ -347,11 +360,30 @@ MANDATORY SAFETY RULES:
 
 Respond strictly in {lang} with simple, comforting text."""
 
-                model_name = getattr(self, "model", None) or os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
-                response = self.client.models.generate_content(
-                    model=model_name,
-                    contents=prompt
-                )
+                candidate_models = [
+                    getattr(self, "model", None) or os.getenv("GEMINI_MODEL", "gemini-flash-latest"),
+                    "gemini-flash-latest",
+                    "gemini-3.1-flash-lite",
+                    "gemini-flash-lite-latest",
+                    "gemini-3.5-flash"
+                ]
+                models_to_try = []
+                for m in candidate_models:
+                    if m and m not in models_to_try:
+                        models_to_try.append(m)
+
+                response = None
+                for model_candidate in models_to_try:
+                    try:
+                        response = self.client.models.generate_content(
+                            model=model_candidate,
+                            contents=prompt
+                        )
+                        if response and response.text:
+                            break
+                    except Exception:
+                        continue
+
                 if response and response.text:
                     cleaned = self._sanitize_diagnoses(response.text.strip())
                     return self._ensure_safety_disclaimer(cleaned)
