@@ -180,24 +180,23 @@ class ReaderAgent:
                 prompt = (
                     "You are an expert medical laboratory report reader assistant for ReportSakhi.\n"
                     "Analyze this lab report (which may be a multi-page PDF document or a series of sequential report photos) with maximum optical and clinical accuracy.\n"
-                    "Extract EVERY individual lab test line across ALL pages, its exact numerical value, unit of measurement, printed biological reference interval, and any abnormal flag into a clean list.\n\n"
+                    "Extract EVERY valid numerical medical laboratory test line from ANY test table or clinical panel across ALL pages.\n\n"
+                    "CLINICAL PANELS AND TESTS TO RECOGNIZE AND EXTRACT:\n"
+                    "- Complete Blood Count (CBC & Differentials): Hemoglobin (Hb), Total WBC / TLC, Platelets, RBC Count, Hematocrit / PCV / HCT, MCV, MCH, MCHC, Neutrophils, Lymphocytes, Monocytes, Eosinophils, Basophils, ESR.\n"
+                    "- Blood Glucose & Diabetes: Fasting Blood Sugar (FBS), Post Prandial Blood Sugar (PPBS), Random Blood Sugar (RBS), HbA1c (Glycated Hemoglobin).\n"
+                    "- Lipid Profile (Cholesterol & Fats): Total Cholesterol, HDL (Good Cholesterol), LDL (Bad Cholesterol), VLDL, Triglycerides, Total Cholesterol/HDL Ratio.\n"
+                    "- Liver Function Tests (LFT): Total Bilirubin, Direct / Conjugated Bilirubin, Indirect Bilirubin, SGPT (ALT), SGOT (AST), Alkaline Phosphatase (ALP), Total Protein, Serum Albumin, Serum Globulin, A/G Ratio, Gamma GT (GGT).\n"
+                    "- Kidney & Renal Function Tests (KFT / RFT): Serum Creatinine, Blood Urea, Blood Urea Nitrogen (BUN), Serum Uric Acid, Serum Electrolytes (Sodium, Potassium, Chloride), Calcium.\n"
+                    "- Thyroid Profile: TSH (Thyroid Stimulating Hormone), Total T3, Free T3 (FT3), Total T4, Free T4 (FT4).\n"
+                    "- Any other valid laboratory diagnostic test line printed with a numerical value, unit, and reference range.\n\n"
                     "CRITICAL EXTRACTION GUIDELINES:\n"
                     "1. Multi-Page Comprehensive Extraction: Read all pages in sequence. Extract all tests from every page without truncating.\n"
                     "2. Deduplication: If the same test is repeated across page headers or summary sections, keep the single most specific/complete record.\n"
-                    "3. DO NOT conflate distinct blood tests! In a Complete Blood Count (CBC):\n"
-                    "   - 'HEMOGLOBIN' is Hemoglobin (Hb).\n"
-                    "   - 'MEAN CELL HAEMOGLOBIN, MCH' is Mean Cell Hemoglobin (MCH), measured in pg. NEVER label it as simple Hemoglobin.\n"
-                    "   - 'MEAN CELL HAEMOGLOBIN CON, MCHC' is MCHC, measured in % or g/dL. NEVER label it as simple Hemoglobin.\n"
-                    "   - 'MEAN CORPUSCULAR VOLUME, MCV' is MCV, measured in fL.\n"
-                    "   - 'HEMATOCRIT VALUE, HCT' is Hematocrit / PCV, measured in %.\n"
-                    "   - 'TOTAL LEUKOCYTE COUNT' is Total Leukocyte Count / WBC.\n"
-                    "   - 'DIFFERENTIAL LEUCOCYTE COUNT' contains individual lines: NEUTROPHILS, LYMPHOCYTES, MONOCYTES, EOSINOPHILS, BASOPHILS. Extract each differential parameter individually!\n"
-                    "   - 'PLATELET COUNT' is Platelet Count.\n"
-                    "   - 'TOTAL RBC COUNT' is Total RBC Count.\n"
-                    "4. Extract the exact printed reference range (e.g. '13 - 17', '4,800 - 10,800', '20 - 40', '31.5 - 34.5', '< 2') for each test in 'reference_range'.\n"
-                    "5. Extract any printed abnormal indicator (e.g. 'L' for Low, 'H' for High, '*') in 'flag'.\n"
-                    "6. If numbers contain commas like '5,100', parse them as 5100.0.\n"
-                    "7. If the document is blurry, illegible, corrupt, severely cropped, or unreadable such that numbers cannot be determined with certainty, DO NOT GUESS. Set status to 'retake_required', is_clear to false, and explain in 'message'."
+                    "3. Specificity: Keep distinct clinical parameters separate (e.g. MCH in pg is NOT Hemoglobin in g/dL; Direct Bilirubin is NOT Total Bilirubin; Free T3 is NOT Total T3).\n"
+                    "4. Reference Intervals: Extract the exact printed biological reference interval (e.g. '13 - 17', '4,800 - 10,800', '< 100', '40 - 60', '0.6 - 1.2') in 'reference_range'.\n"
+                    "5. Abnormal Indicators: Extract any printed abnormal indicator (e.g. 'L' for Low, 'H' for High, '*') in 'flag'.\n"
+                    "6. Numerical Accuracy: Parse numbers with commas like '5,100' or '1,50,000' as standard floats (5100.0, 150000.0).\n"
+                    "7. Legibility Check: If the document is blurry, illegible, corrupt, severely cropped, or unreadable such that numbers cannot be determined with certainty, DO NOT GUESS. Set status to 'retake_required', is_clear to false, and explain in 'message'."
                 )
 
                 # Build multimodal parts
@@ -354,16 +353,32 @@ class ReaderAgent:
             (r"(?i)\b(ha?emoglobin|hb)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(g/d[lL]|gm%)?", "Hemoglobin"),
             (r"(?i)\b(fasting\s+blood\s+sugar|fbs|fasting\s+glucose)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "Fasting Blood Sugar"),
             (r"(?i)\b(post\s*prandial\s+blood\s+sugar|ppbs|pp\s+glucose)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "Postprandial Blood Sugar"),
+            (r"(?i)\b(random\s+blood\s+sugar|rbs|random\s+glucose)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "Random Blood Sugar"),
             (r"(?i)\b(hba1c|glycated\s+ha?emoglobin)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(%)?", "HbA1c"),
             (r"(?i)\b(total\s+(?:leukocyte|wbc)\s+count|wbc|tlc)\b[^\d\n]*?(\d{3,6}(?:\.\d+)?)\s*(/cumm|cumm)?", "Total WBC Count"),
             (r"(?i)\b(platelet\s+count|platelets)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(lakhs?/cumm|/cumm)?", "Platelet Count"),
             (r"(?i)\b(serum\s+creatinine|creatinine)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "Serum Creatinine"),
+            (r"(?i)\b(blood\s+urea\s+nitrogen|bun)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "Blood Urea Nitrogen (BUN)"),
+            (r"(?i)\b(blood\s+urea|serum\s+urea|urea)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "Blood Urea"),
+            (r"(?i)\b(serum\s+uric\s+acid|uric\s+acid)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "Serum Uric Acid"),
             (r"(?i)\b(total\s+cholesterol|cholesterol)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "Total Cholesterol"),
-            (r"(?i)\b(blood\s+urea\s+nitrogen|bun|serum\s+urea|urea)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "Blood Urea Nitrogen (BUN)"),
+            (r"(?i)\b(hdl(?:\s+cholesterol)?|hdl-c)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "HDL Cholesterol"),
+            (r"(?i)\b(ldl(?:\s+cholesterol)?|ldl-c)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "LDL Cholesterol"),
+            (r"(?i)\b(vldl(?:\s+cholesterol)?|vldl-c)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "VLDL Cholesterol"),
+            (r"(?i)\b(triglycerides?|tg)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "Serum Triglycerides"),
             (r"(?i)\b(total\s+bilirubin|bilirubin)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "Total Bilirubin"),
-            (r"(?i)\b(sgpt|alt)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(u/l|iu/l)?", "SGPT (ALT)"),
-            (r"(?i)\b(sgot|ast)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(u/l|iu/l)?", "SGOT (AST)"),
+            (r"(?i)\b(direct\s+bilirubin|conjugated\s+bilirubin)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mg/d[lL])?", "Direct Bilirubin"),
+            (r"(?i)\b(sgpt|alt|alanine\s+aminotransferase)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(u/l|iu/l)?", "SGPT (ALT)"),
+            (r"(?i)\b(sgot|ast|aspartate\s+aminotransferase)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(u/l|iu/l)?", "SGOT (AST)"),
+            (r"(?i)\b(alkaline\s+phosphatase|alp)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(u/l|iu/l)?", "Alkaline Phosphatase (ALP)"),
+            (r"(?i)\b(total\s+protein)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(g/d[lL])?", "Total Protein"),
+            (r"(?i)\b(serum\s+albumin|albumin)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(g/d[lL])?", "Serum Albumin"),
+            (r"(?i)\b(serum\s+globulin|globulin)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(g/d[lL])?", "Serum Globulin"),
             (r"(?i)\b(thyroid\s+stimulating\s+hormone|tsh)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(µiu/ml|u[iI]u/ml)?", "Thyroid Stimulating Hormone (TSH)"),
+            (r"(?i)\b(total\s+t3|t3\s+total)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(ng/ml)?", "Total T3"),
+            (r"(?i)\b(free\s+t3|ft3)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(pg/ml)?", "Free T3"),
+            (r"(?i)\b(total\s+t4|t4\s+total)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(ug/dl|mcg/dl)?", "Total T4"),
+            (r"(?i)\b(free\s+t4|ft4)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(ng/dl)?", "Free T4"),
             (r"(?i)\b(erythrocyte\s+sedimentation\s+rate|esr)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(mm/hr)?", "ESR"),
             (r"(?i)\b(hematocrit|pcv|hct)\b[^\d\n]*?(\d+(?:\.\d+)?)\s*(%)?", "Hematocrit (PCV)"),
         ]

@@ -780,15 +780,37 @@ class ReportSakhiApp {
         if (key.includes("monocyte") || name.includes("monocyte")) return "🧫";
         if (key.includes("eosinophil") || name.includes("eosinophil")) return "🌸";
         if (key.includes("basophil") || name.includes("basophil")) return "🫐";
+        if (key.includes("esr") || name.includes("esr")) return "⏳";
         if (key.includes("hemoglobin") || name.includes("hemoglobin") || name.includes("haemoglobin") || name.includes("hb")) return "🩸";
         if (key.includes("fasting") || name.includes("fasting") || name.includes("fbs")) return "🍬";
         if (key.includes("post_prandial") || name.includes("ppbs") || name.includes("post prandial") || name.includes("pp")) return "🍚";
+        if (key.includes("random") || name.includes("rbs")) return "🍬";
         if (key.includes("hba1c") || name.includes("hba1c")) return "📊";
         if (key.includes("wbc") || name.includes("wbc") || name.includes("leukocyte") || name.includes("tlc")) return "🛡️";
         if (key.includes("platelet") || name.includes("platelet") || name.includes("plt")) return "🩹";
-        if (key.includes("tsh") || name.includes("thyroid") || name.includes("tsh")) return "⚡";
-        if (key.includes("creatinine") || name.includes("creatinine")) return "💧";
+        // Lipids
+        if (key.includes("hdl") || name.includes("hdl")) return "💚";
+        if (key.includes("ldl") || name.includes("ldl")) return "⚠️";
+        if (key.includes("vldl") || name.includes("vldl")) return "🫀";
+        if (key.includes("triglyceride") || name.includes("triglyceride") || name.includes("tg")) return "🧈";
         if (key.includes("cholesterol") || name.includes("cholesterol") || name.includes("lipid")) return "🫀";
+        // Liver
+        if (key.includes("bilirubin") || name.includes("bilirubin")) return "🟡";
+        if (key.includes("sgpt") || key.includes("alt") || name.includes("sgpt") || name.includes("alt")) return "🧪";
+        if (key.includes("sgot") || key.includes("ast") || name.includes("sgot") || name.includes("ast")) return "🧪";
+        if (key.includes("alkaline") || name.includes("alkaline") || key.includes("alp") || name.includes("alp")) return "🧬";
+        if (key.includes("protein") || name.includes("protein")) return "🥚";
+        if (key.includes("albumin") || name.includes("albumin")) return "🥛";
+        if (key.includes("globulin") || name.includes("globulin")) return "🛡️";
+        if (key.includes("ggt") || name.includes("ggt")) return "🔬";
+        // Thyroid
+        if (key.includes("tsh") || name.includes("tsh") || name.includes("thyroid")) return "⚡";
+        if (key.includes("t3") || name.includes("t3")) return "🦋";
+        if (key.includes("t4") || name.includes("t4")) return "🦋";
+        // Kidney
+        if (key.includes("creatinine") || name.includes("creatinine")) return "💧";
+        if (key.includes("urea") || name.includes("urea") || key.includes("bun") || name.includes("bun")) return "🚽";
+        if (key.includes("uric") || name.includes("uric")) return "💎";
         return "🧪";
     }
 
@@ -1268,17 +1290,37 @@ class ReportSakhiApp {
         // Render Longitudinal Trend Tracker (Chart.js + Metric Picker)
         this.renderLongitudinalTracker(data);
 
-        // Tests Grid
+        // Tests Grid - Grouped by Health Panels
         this.testsGrid.innerHTML = "";
         const items = checker.items || [];
         const compList = comparison.comparisons || [];
 
+        const panelConfigs = [
+            { key: "diabetes", icon: "🍬", titles: { en: "Diabetes & Blood Sugar", hi: "मधुमेह और ब्लड शुगर", ml: "പ്രമേഹ പരിശോധന", ta: "சர்க்கரை பரிசோதனை" } },
+            { key: "lipids", icon: "🫀", titles: { en: "Heart & Lipid Profile", hi: "हृदय और लिपिड प्रोफाइल", ml: "ഹൃദയാരോഗ്യവും കൊളസ്ട്രോളും", ta: "இதயம் & கொழுப்பு அளவு" } },
+            { key: "liver", icon: "🧪", titles: { en: "Liver Function Tests (LFT)", hi: "लिवर फंक्शन टेस्ट (एलएफटी)", ml: "കരൾ പ്രവർത്തന പരിശോധന", ta: "கல்லீரல் செயல்பாடு பரிசோதனை" } },
+            { key: "kidney", icon: "💧", titles: { en: "Kidney & Vital Organs", hi: "किडनी व मुख्य अंग", ml: "വൃക്ക പരിശോധന", ta: "சிறுநீரக பரிசோதனை" } },
+            { key: "thyroid", icon: "⚡", titles: { en: "Thyroid Profile", hi: "थायराइड प्रोफाइल", ml: "തൈറോയ്ഡ് പരിശോധന", ta: "தைராய்டு பரிசோதனை" } },
+            { key: "cbc", icon: "🩸", titles: { en: "Complete Blood Count (CBC)", hi: "रक्त गणना (सीबीसी)", ml: "രക്ത പരിശോധന (സിബിസി)", ta: "முழு இரத்த எண்ணிக்கை (CBC)" } },
+            { key: "general", icon: "🔬", titles: { en: "General Clinical Tests", hi: "सामान्य नैदानिक जांच", ml: "മറ്റു പരിശോധനകൾ", ta: "பொது ஆய்வக பரிசோதனைகள்" } }
+        ];
+
+        // Map items by panel
+        const panelMap = new Map();
+        panelConfigs.forEach(p => panelMap.set(p.key, []));
+
         items.forEach((test, idx) => {
+            const panelKey = (test.panel && panelMap.has(test.panel)) ? test.panel : "general";
+            panelMap.get(panelKey).push({ test, idx });
+        });
+
+        // Helper to construct a single test card element
+        const createCardElement = (test, idx) => {
             const card = document.createElement("div");
             const color = test.color || "green";
             card.className = `test-item-card color-${color}`;
             
-            const desc = (test.description && test.description[this.currentLang]) || "";
+            const desc = (test.description && test.description[this.currentLang]) || (test.description && test.description.en) || "";
             const normFormatted = test.normal_range ? test.normal_range.formatted : "";
             const testIcon = this.getTestIcon(test);
             const statusIcon = this.getStatusIcon(color);
@@ -1338,8 +1380,49 @@ class ReportSakhiApp {
                 });
             }
 
-            this.testsGrid.appendChild(card);
+            return card;
+        };
+
+        // Render sections for panels with active test items
+        let renderedCount = 0;
+        panelConfigs.forEach(pConfig => {
+            const list = panelMap.get(pConfig.key) || [];
+            if (list.length === 0) return;
+            renderedCount += list.length;
+
+            const panelSec = document.createElement("section");
+            panelSec.className = `panel-section panel-${pConfig.key}`;
+            
+            const panelTitle = (pConfig.titles && pConfig.titles[this.currentLang]) || pConfig.titles.en;
+            const countLabel = list.length === 1 ? "1 test" : `${list.length} tests`;
+
+            panelSec.innerHTML = `
+                <div class="panel-header">
+                    <div class="panel-header-left">
+                        <span class="panel-header-icon" aria-hidden="true">${pConfig.icon}</span>
+                        <h4 class="panel-header-title">${panelTitle}</h4>
+                    </div>
+                    <span class="panel-header-badge">${countLabel}</span>
+                </div>
+                <div class="panel-cards-grid"></div>
+            `;
+
+            const cardsGrid = panelSec.querySelector(".panel-cards-grid");
+            list.forEach(({ test, idx }) => {
+                const cardEl = createCardElement(test, idx);
+                cardsGrid.appendChild(cardEl);
+            });
+
+            this.testsGrid.appendChild(panelSec);
         });
+
+        // Fallback: If no panel matched (e.g. unknown panel), append cards directly
+        if (renderedCount === 0 && items.length > 0) {
+            items.forEach((test, idx) => {
+                const cardEl = createCardElement(test, idx);
+                this.testsGrid.appendChild(cardEl);
+            });
+        }
 
         // Hospital / Nearby Help: Triggered if ANY result is Red or Yellow via MCP tool
         if (overallStatus === "red" || overallStatus === "yellow") {

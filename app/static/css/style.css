@@ -1007,6 +1007,61 @@ input:checked+.switch-slider::before {
 .tests-grid {
     display: flex;
     flex-direction: column;
+    gap: 16px;
+}
+
+/* Health Panel Sections */
+.panel-section {
+    background: #ffffff;
+    border-radius: var(--radius-lg, 16px);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 0 4px 14px -3px rgba(15, 23, 42, 0.05);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.panel-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.panel-header-icon {
+    font-size: 1.45rem;
+    line-height: 1;
+}
+
+.panel-header-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+    letter-spacing: -0.2px;
+}
+
+.panel-header-badge {
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    border: 1px solid #e2e8f0;
+}
+
+.panel-cards-grid {
+    display: flex;
+    flex-direction: column;
     gap: 10px;
 }
 

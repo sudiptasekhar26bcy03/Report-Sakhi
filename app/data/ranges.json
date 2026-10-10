@@ -1,13 +1,22 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "source": "Standard Indian Clinical Reference Ranges (Adult)",
   "disclaimer": "Reference ranges are indicative standard adult limits. Values must be verified by a medical professional.",
   "tests": {
     "hemoglobin": {
       "canonical_name": "Hemoglobin (Hb)",
-      "aliases": ["hemoglobin", "haemoglobin", "hb", "hgb"],
+      "panel": "cbc",
+      "aliases": [
+        "hemoglobin",
+        "haemoglobin",
+        "hb",
+        "hgb"
+      ],
       "unit": "g/dL",
-      "normal": { "min": 12.0, "max": 17.5 },
+      "normal": {
+        "min": 12.0,
+        "max": 17.5
+      },
       "critical_low": 7.0,
       "critical_high": 20.0,
       "description": {
@@ -17,53 +26,20 @@
         "ta": "இரத்தத்தில் ஆக்ஸிஜனை எடுத்துச் செல்லும் மூலக்கூறு"
       }
     },
-    "fasting_blood_sugar": {
-      "canonical_name": "Fasting Blood Sugar (FBS)",
-      "aliases": ["fasting blood sugar", "fbs", "fasting glucose", "glucose fasting", "blood sugar fasting"],
-      "unit": "mg/dL",
-      "normal": { "min": 70.0, "max": 100.0 },
-      "critical_low": 50.0,
-      "critical_high": 250.0,
-      "description": {
-        "en": "Sugar level before eating in the morning",
-        "hi": "सुबह बिना खाए खून में शर्करा का स्तर",
-        "ml": "രാവിലെ ഭക്ഷണം കഴിക്കുന്നതിന് മുമ്പുള്ള പഞ്ചസാരയുടെ അളവ്",
-        "ta": "காலையில் உணவு உண்பதற்கு முன் இரத்தத்தில் உள்ள சர்க்கரை அளவு"
-      }
-    },
-    "post_prandial_blood_sugar": {
-      "canonical_name": "Post Prandial Blood Sugar (PPBS)",
-      "aliases": ["post prandial blood sugar", "ppbs", "glucose pp", "blood sugar pp"],
-      "unit": "mg/dL",
-      "normal": { "min": 90.0, "max": 140.0 },
-      "critical_low": 60.0,
-      "critical_high": 300.0,
-      "description": {
-        "en": "Sugar level 2 hours after a meal",
-        "hi": "खाना खाने के 2 घंटे बाद शर्करा का स्तर",
-        "ml": "ഭക്ഷണം കഴിഞ്ഞ് 2 മണിക്കൂറിന് ശേഷമുള്ള പഞ്ചസാര",
-        "ta": "சாப்பிட்ட 2 மணி நேரத்திற்குப் பின் சர்க்கரை அளவு"
-      }
-    },
-    "hba1c": {
-      "canonical_name": "HbA1c (3-Month Sugar)",
-      "aliases": ["hba1c", "glycated hemoglobin", "glycosylated hemoglobin"],
-      "unit": "%",
-      "normal": { "min": 4.0, "max": 5.6 },
-      "critical_low": 3.5,
-      "critical_high": 10.0,
-      "description": {
-        "en": "Average blood sugar over the last 3 months",
-        "hi": "पिछले 3 महीनों का औसत ब्लड शुगर",
-        "ml": "കഴിഞ്ഞ 3 മാസത്തെ ശരാശരി രക്തത്തിലെ പഞ്ചസാര",
-        "ta": "கடந்த 3 மாதங்களின் சராசரி இரத்த சர்க்கரை அளவு"
-      }
-    },
     "wbc": {
       "canonical_name": "Total WBC Count",
-      "aliases": ["wbc", "total leukocyte count", "tlc", "white blood cell count"],
+      "panel": "cbc",
+      "aliases": [
+        "wbc",
+        "total leukocyte count",
+        "tlc",
+        "white blood cell count"
+      ],
       "unit": "/cumm",
-      "normal": { "min": 4000.0, "max": 11000.0 },
+      "normal": {
+        "min": 4000.0,
+        "max": 11000.0
+      },
       "critical_low": 2000.0,
       "critical_high": 30000.0,
       "description": {
@@ -75,9 +51,17 @@
     },
     "platelets": {
       "canonical_name": "Platelet Count",
-      "aliases": ["platelet count", "platelets", "plt"],
+      "panel": "cbc",
+      "aliases": [
+        "platelet count",
+        "platelets",
+        "plt"
+      ],
       "unit": "lakhs/cumm",
-      "normal": { "min": 1.5, "max": 4.5 },
+      "normal": {
+        "min": 1.5,
+        "max": 4.5
+      },
       "critical_low": 0.5,
       "critical_high": 10.0,
       "description": {
@@ -87,53 +71,23 @@
         "ta": "இரத்தம் உறைவதற்கு உதவும் தட்டணுக்கள்"
       }
     },
-    "tsh": {
-      "canonical_name": "TSH (Thyroid Stimulating Hormone)",
-      "aliases": ["tsh", "thyroid stimulating hormone", "ultra tsh"],
-      "unit": "uIU/mL",
-      "normal": { "min": 0.4, "max": 4.5 },
-      "critical_low": 0.05,
-      "critical_high": 20.0,
-      "description": {
-        "en": "Thyroid hormone controlling body energy & metabolism",
-        "hi": "शरीर की ऊर्जा नियंत्रित करने वाला थायराइड हार्मोन",
-        "ml": "ശരീരത്തിന്റെ പ്രവർത്തനവേഗത നിയന്ത്രിക്കുന്ന തൈറോയ്ഡ് ഹോർമോൺ",
-        "ta": "உடல் ஆற்றலைக் கட்டுப்படுத்தும் தைராய்டு ஹார்மோன்"
-      }
-    },
-    "serum_creatinine": {
-      "canonical_name": "Serum Creatinine",
-      "aliases": ["serum creatinine", "creatinine"],
-      "unit": "mg/dL",
-      "normal": { "min": 0.6, "max": 1.2 },
-      "critical_low": 0.3,
-      "critical_high": 4.0,
-      "description": {
-        "en": "Kidney filter function test",
-        "hi": "गुर्दे (किडनी) की कार्यप्रणाली की जांच",
-        "ml": "വൃക്കകളുടെ (കിഡ്നി) പ്രവർത്തനം പരിശോധിക്കുന്ന അളവ്",
-        "ta": "சிறுநீரகத்தின் செயல்பாட்டை குறிக்கும் அளவு"
-      }
-    },
-    "total_cholesterol": {
-      "canonical_name": "Total Cholesterol",
-      "aliases": ["total cholesterol", "cholesterol"],
-      "unit": "mg/dL",
-      "normal": { "min": 125.0, "max": 200.0 },
-      "critical_low": 80.0,
-      "critical_high": 300.0,
-      "description": {
-        "en": "Total fat amount in your blood vessels",
-        "hi": "रक्त में कुल वसा (फैट) की मात्रा",
-        "ml": "രക്തത്തിലെ ആകെ കൊഴുപ്പിന്റെ അളവ്",
-        "ta": "இரத்தத்தில் உள்ள மொத்த கொழுப்பின் அளவு"
-      }
-    },
     "rbc": {
       "canonical_name": "Total RBC Count",
-      "aliases": ["total rbc count", "rbc count", "rbc", "red blood cell count", "total red blood cells", "erythrocytes", "erythrocyte count"],
+      "panel": "cbc",
+      "aliases": [
+        "total rbc count",
+        "rbc count",
+        "rbc",
+        "red blood cell count",
+        "total red blood cells",
+        "erythrocytes",
+        "erythrocyte count"
+      ],
       "unit": "million/cumm",
-      "normal": { "min": 4.5, "max": 5.5 },
+      "normal": {
+        "min": 4.5,
+        "max": 5.5
+      },
       "critical_low": 2.5,
       "critical_high": 7.5,
       "description": {
@@ -145,9 +99,20 @@
     },
     "hct": {
       "canonical_name": "Hematocrit (HCT / PCV)",
-      "aliases": ["hematocrit value hct", "hematocrit value", "hematocrit", "hct", "packed cell volume", "pcv"],
+      "panel": "cbc",
+      "aliases": [
+        "hematocrit value hct",
+        "hematocrit value",
+        "hematocrit",
+        "hct",
+        "packed cell volume",
+        "pcv"
+      ],
       "unit": "%",
-      "normal": { "min": 40.0, "max": 50.0 },
+      "normal": {
+        "min": 40.0,
+        "max": 50.0
+      },
       "critical_low": 20.0,
       "critical_high": 60.0,
       "description": {
@@ -159,9 +124,17 @@
     },
     "mcv": {
       "canonical_name": "Mean Corpuscular Volume (MCV)",
-      "aliases": ["mean corpuscular volume mcv", "mean corpuscular volume", "mcv"],
+      "panel": "cbc",
+      "aliases": [
+        "mean corpuscular volume mcv",
+        "mean corpuscular volume",
+        "mcv"
+      ],
       "unit": "fL",
-      "normal": { "min": 83.0, "max": 101.0 },
+      "normal": {
+        "min": 83.0,
+        "max": 101.0
+      },
       "critical_low": 65.0,
       "critical_high": 120.0,
       "description": {
@@ -173,9 +146,20 @@
     },
     "mch": {
       "canonical_name": "Mean Cell Hemoglobin (MCH)",
-      "aliases": ["mean cell haemoglobin mch", "mean cell hemoglobin mch", "mean cell haemoglobin", "mean cell hemoglobin", "mean corpuscular hemoglobin", "mch"],
+      "panel": "cbc",
+      "aliases": [
+        "mean cell haemoglobin mch",
+        "mean cell hemoglobin mch",
+        "mean cell haemoglobin",
+        "mean cell hemoglobin",
+        "mean corpuscular hemoglobin",
+        "mch"
+      ],
       "unit": "pg",
-      "normal": { "min": 27.0, "max": 32.0 },
+      "normal": {
+        "min": 27.0,
+        "max": 32.0
+      },
       "critical_low": 18.0,
       "critical_high": 42.0,
       "description": {
@@ -187,13 +171,25 @@
     },
     "mchc": {
       "canonical_name": "Mean Cell Hemoglobin Concentration (MCHC)",
-      "aliases": ["mean cell haemoglobin con mchc", "mean cell hemoglobin con mchc", "mean cell haemoglobin con", "mean cell hemoglobin con", "mean cell haemoglobin concentration", "mean cell hemoglobin concentration", "mchc"],
+      "panel": "cbc",
+      "aliases": [
+        "mean cell haemoglobin con mchc",
+        "mean cell hemoglobin con mchc",
+        "mean cell haemoglobin con",
+        "mean cell hemoglobin con",
+        "mean cell haemoglobin concentration",
+        "mean cell hemoglobin concentration",
+        "mchc"
+      ],
       "unit": "%",
-      "normal": { "min": 31.5, "max": 34.5 },
+      "normal": {
+        "min": 31.5,
+        "max": 34.5
+      },
       "critical_low": 26.0,
       "critical_high": 38.0,
       "description": {
-        "en": "Average concentration of hemoglobin in a given volume of red cells",
+        "en": "Average concentration of hemoglobin in red cells",
         "hi": "लाल रक्त कोशिकाओं में हीमोग्लोबिन की सांद्रता",
         "ml": "ചുവന്ന രക്താണുക്കളിലെ ഹീമോഗ്ലോബിന്റെ സാന്ദ്രത",
         "ta": "சிவப்பு அணுக்களில் உள்ள ஹீமோகுளோபின் அடர்த்தி"
@@ -201,9 +197,19 @@
     },
     "neutrophils": {
       "canonical_name": "Neutrophils",
-      "aliases": ["neutrophils", "neutrophil", "segs", "polymorphs", "neutrophil count"],
+      "panel": "cbc",
+      "aliases": [
+        "neutrophils",
+        "neutrophil",
+        "segs",
+        "polymorphs",
+        "neutrophil count"
+      ],
       "unit": "%",
-      "normal": { "min": 40.0, "max": 80.0 },
+      "normal": {
+        "min": 40.0,
+        "max": 80.0
+      },
       "critical_low": 20.0,
       "critical_high": 90.0,
       "description": {
@@ -215,23 +221,41 @@
     },
     "lymphocytes": {
       "canonical_name": "Lymphocytes",
-      "aliases": ["lymphocyte", "lymphocytes", "lymphs", "lymphocyte count"],
+      "panel": "cbc",
+      "aliases": [
+        "lymphocyte",
+        "lymphocytes",
+        "lymphs",
+        "lymphocyte count"
+      ],
       "unit": "%",
-      "normal": { "min": 20.0, "max": 40.0 },
+      "normal": {
+        "min": 20.0,
+        "max": 40.0
+      },
       "critical_low": 10.0,
       "critical_high": 65.0,
       "description": {
         "en": "White blood cells that fight viruses and build immunity",
-        "hi": "वायरस से लड़ने और प्रतिरक्षा प्रणाली बनाने वाली कोशिकाएं",
+        "hi": "वायरस से लड़ने और रोग प्रतिरोधक क्षमता बनाने वाली कोशिकाएं",
         "ml": "വൈറസുകൾക്കെതിരെ പ്രതിരോധം തീർക്കുന്ന കോശങ്ങൾ",
         "ta": "வைரஸ்களை எதிர்க்கும் நோய் எதிர்ப்பு அணுக்கள்"
       }
     },
     "monocytes": {
       "canonical_name": "Monocytes",
-      "aliases": ["monocyte", "monocytes", "monos", "monocyte count"],
+      "panel": "cbc",
+      "aliases": [
+        "monocyte",
+        "monocytes",
+        "monos",
+        "monocyte count"
+      ],
       "unit": "%",
-      "normal": { "min": 2.0, "max": 10.0 },
+      "normal": {
+        "min": 2.0,
+        "max": 10.0
+      },
       "critical_low": 0.0,
       "critical_high": 20.0,
       "description": {
@@ -243,9 +267,18 @@
     },
     "eosinophils": {
       "canonical_name": "Eosinophils",
-      "aliases": ["eosinophils", "eosinophil", "eos", "eosinophil count"],
+      "panel": "cbc",
+      "aliases": [
+        "eosinophils",
+        "eosinophil",
+        "eos",
+        "eosinophil count"
+      ],
       "unit": "%",
-      "normal": { "min": 1.0, "max": 6.0 },
+      "normal": {
+        "min": 1.0,
+        "max": 6.0
+      },
       "critical_low": 0.0,
       "critical_high": 15.0,
       "description": {
@@ -257,9 +290,18 @@
     },
     "basophils": {
       "canonical_name": "Basophils",
-      "aliases": ["basophils", "basophil", "basos", "basophil count"],
+      "panel": "cbc",
+      "aliases": [
+        "basophils",
+        "basophil",
+        "basos",
+        "basophil count"
+      ],
       "unit": "%",
-      "normal": { "min": 0.0, "max": 2.0 },
+      "normal": {
+        "min": 0.0,
+        "max": 2.0
+      },
       "critical_low": 0.0,
       "critical_high": 5.0,
       "description": {
@@ -267,6 +309,710 @@
         "hi": "एलर्जी प्रतिक्रिया के समय सक्रिय होने वाली कोशिकाएं",
         "ml": "അലർജി ഉണ്ടാകുമ്പോൾ പ്രതികരിക്കുന്ന രക്താണുക്കൾ",
         "ta": "ஒவ்வாமை எதிர்வினைகளில் செயல்படும் இரத்த அணுக்கள்"
+      }
+    },
+    "esr": {
+      "canonical_name": "ESR (Erythrocyte Sedimentation Rate)",
+      "panel": "cbc",
+      "aliases": [
+        "erythrocyte sedimentation rate",
+        "esr",
+        "sedimentation rate"
+      ],
+      "unit": "mm/hr",
+      "normal": {
+        "min": 0.0,
+        "max": 20.0
+      },
+      "critical_low": null,
+      "critical_high": 80.0,
+      "description": {
+        "en": "Indicates general inflammation or infection in the body",
+        "hi": "शरीर में किसी भी प्रकार की सूजन या संक्रमण का संकेत",
+        "ml": "ശരീരത്തിലെ വീക്കമോ അണുബാധയോ സൂചിപ്പിക്കുന്ന അളവ്",
+        "ta": "உடலில் ஏற்படும் வீக்கம் அல்லது தொற்றைக் குறிக்கும் அளவு"
+      }
+    },
+    "fasting_blood_sugar": {
+      "canonical_name": "Fasting Blood Sugar (FBS)",
+      "panel": "diabetes",
+      "aliases": [
+        "fasting blood sugar",
+        "fbs",
+        "fasting glucose",
+        "glucose fasting",
+        "blood sugar fasting"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 70.0,
+        "max": 100.0
+      },
+      "critical_low": 50.0,
+      "critical_high": 250.0,
+      "description": {
+        "en": "Sugar level before eating in the morning",
+        "hi": "सुबह बिना खाए खून में शर्करा का स्तर",
+        "ml": "രാവിലെ ഭക്ഷണം കഴിക്കുന്നതിന് മുമ്പുള്ള പഞ്ചസാരയുടെ അളവ്",
+        "ta": "காலையில் உணவு உண்பதற்கு முன் இரத்தத்தில் உள்ள சர்க்கரை அளவு"
+      }
+    },
+    "post_prandial_blood_sugar": {
+      "canonical_name": "Post Prandial Blood Sugar (PPBS)",
+      "panel": "diabetes",
+      "aliases": [
+        "post prandial blood sugar",
+        "ppbs",
+        "glucose pp",
+        "blood sugar pp"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 90.0,
+        "max": 140.0
+      },
+      "critical_low": 60.0,
+      "critical_high": 300.0,
+      "description": {
+        "en": "Sugar level 2 hours after a meal",
+        "hi": "खाना खाने के 2 घंटे बाद शर्करा का स्तर",
+        "ml": "ഭക്ഷണം കഴിഞ്ഞ് 2 മണിക്കൂറിന് ശേഷമുള്ള പഞ്ചസാര",
+        "ta": "சாப்பிட்ட 2 மணி நேரத்திற்குப் பின் சர்க்கரை அளவு"
+      }
+    },
+    "random_blood_sugar": {
+      "canonical_name": "Random Blood Sugar (RBS)",
+      "panel": "diabetes",
+      "aliases": [
+        "random blood sugar",
+        "rbs",
+        "random glucose",
+        "glucose random",
+        "blood sugar random"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 70.0,
+        "max": 140.0
+      },
+      "critical_low": 50.0,
+      "critical_high": 300.0,
+      "description": {
+        "en": "Blood sugar measured at any random time of day",
+        "hi": "दिन के किसी भी समय जांची गई ब्लड शुगर",
+        "ml": "ദിവസത്തിൽ എപ്പോൾ വേണമെങ്കിലും പരിശോധിക്കുന്ന രക്തത്തിലെ പഞ്ചസാര",
+        "ta": "எந்த நேரத்திலும் பரிசோதிக்கப்படும் இரத்த சர்க்கரை அளவு"
+      }
+    },
+    "hba1c": {
+      "canonical_name": "HbA1c (3-Month Sugar)",
+      "panel": "diabetes",
+      "aliases": [
+        "hba1c",
+        "glycated hemoglobin",
+        "glycosylated hemoglobin"
+      ],
+      "unit": "%",
+      "normal": {
+        "min": 4.0,
+        "max": 5.6
+      },
+      "critical_low": 3.5,
+      "critical_high": 10.0,
+      "description": {
+        "en": "Average blood sugar over the last 3 months",
+        "hi": "पिछले 3 महीनों का औसत ब्लड शुगर",
+        "ml": "കഴിഞ്ഞ 3 മാസത്തെ ശരാശരി രക്തത്തിലെ പഞ്ചസാര",
+        "ta": "கடந்த 3 மாதங்களின் சராசரி இரத்த சர்க்கரை அளவு"
+      }
+    },
+    "total_cholesterol": {
+      "canonical_name": "Total Cholesterol",
+      "panel": "lipids",
+      "aliases": [
+        "total cholesterol",
+        "cholesterol",
+        "serum cholesterol"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 125.0,
+        "max": 200.0
+      },
+      "critical_low": 80.0,
+      "critical_high": 300.0,
+      "description": {
+        "en": "Total fat amount in your blood vessels",
+        "hi": "रक्त में कुल वसा (फैट) की मात्रा",
+        "ml": "രക്തത്തിലെ ആകെ കൊഴുപ്പിന്റെ അളവ്",
+        "ta": "இரத்தத்தில் உள்ள மொத்த கொழுப்பின் அளவு"
+      }
+    },
+    "hdl_cholesterol": {
+      "canonical_name": "HDL Cholesterol (Good Fat)",
+      "panel": "lipids",
+      "aliases": [
+        "hdl cholesterol",
+        "hdl",
+        "high density lipoprotein",
+        "hdl-c",
+        "serum hdl"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 40.0,
+        "max": 60.0
+      },
+      "critical_low": 20.0,
+      "critical_high": null,
+      "description": {
+        "en": "Good healthy fat that protects the heart",
+        "hi": "हृदय की रक्षा करने वाला अच्छा कोलेस्ट्रॉल",
+        "ml": "ഹൃദയത്തെ സംരക്ഷിക്കുന്ന നല്ല കൊളസ്ട്രോൾ",
+        "ta": "இதயத்தைப் பாதுகாக்கும் நல்ல கொழுப்பு"
+      }
+    },
+    "ldl_cholesterol": {
+      "canonical_name": "LDL Cholesterol (Bad Fat)",
+      "panel": "lipids",
+      "aliases": [
+        "ldl cholesterol",
+        "ldl",
+        "low density lipoprotein",
+        "ldl-c",
+        "serum ldl"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 0.0,
+        "max": 100.0
+      },
+      "critical_low": null,
+      "critical_high": 190.0,
+      "description": {
+        "en": "Unhealthy fat that can block blood vessels",
+        "hi": "हानिकारक वसा जो नसों में रुकावट पैदा कर सकती है",
+        "ml": "രക്തക്കുഴലുകളിൽ അടിഞ്ഞുകൂടുന്ന ചീത്ത കൊളസ്ട്രോൾ",
+        "ta": "இரத்த நாளங்களை அடைக்கக்கூடிய கெட்ட கொழுப்பு"
+      }
+    },
+    "vldl_cholesterol": {
+      "canonical_name": "VLDL Cholesterol",
+      "panel": "lipids",
+      "aliases": [
+        "vldl cholesterol",
+        "vldl",
+        "very low density lipoprotein",
+        "vldl-c"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 5.0,
+        "max": 30.0
+      },
+      "critical_low": null,
+      "critical_high": 50.0,
+      "description": {
+        "en": "Type of blood fat carrying triglycerides",
+        "hi": "रक्त में मौजूद एक प्रकार की अतिरिक्त वसा",
+        "ml": "രക്തത്തിലെ ട്രൈഗ്ലിസറൈഡുകൾ വഹിക്കുന്ന കൊഴുപ്പ്",
+        "ta": "இரத்தத்தில் உள்ள ட்ரைகிளிசரைடு கொழுப்பு"
+      }
+    },
+    "triglycerides": {
+      "canonical_name": "Serum Triglycerides",
+      "panel": "lipids",
+      "aliases": [
+        "triglycerides",
+        "triglyceride",
+        "serum triglycerides",
+        "tg"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 0.0,
+        "max": 150.0
+      },
+      "critical_low": null,
+      "critical_high": 500.0,
+      "description": {
+        "en": "Fat stored in the body from calories eaten",
+        "hi": "भोजन से बनने वाली शरीर की मुख्य वसा",
+        "ml": "ഭക്ഷണത്തിൽ നിന്ന് ശരീരത്തിൽ ശേഖരിക്കപ്പെടുന്ന കൊഴുപ്പ്",
+        "ta": "உணவில் இருந்து உடலில் சேமிக்கப்படும் கொழுப்பு"
+      }
+    },
+    "cholesterol_hdl_ratio": {
+      "canonical_name": "Cholesterol / HDL Ratio",
+      "panel": "lipids",
+      "aliases": [
+        "tc/hdl ratio",
+        "cholesterol/hdl ratio",
+        "chol/hdl ratio",
+        "tc to hdl ratio"
+      ],
+      "unit": "ratio",
+      "normal": {
+        "min": 3.0,
+        "max": 5.0
+      },
+      "critical_low": null,
+      "critical_high": 7.0,
+      "description": {
+        "en": "Balance between total fat and good protective fat",
+        "hi": "कुल वसा और अच्छे कोलेस्ट्रॉल का अनुपात",
+        "ml": "മൊത്തം കൊഴുപ്പും നല്ല കൊഴുപ്പും തമ്മിലുള്ള അനുപാതം",
+        "ta": "மொத்த கொழுப்புக்கும் நல்ல கொழுப்புக்கும் இடையிலான விகிதம்"
+      }
+    },
+    "total_bilirubin": {
+      "canonical_name": "Total Bilirubin",
+      "panel": "liver",
+      "aliases": [
+        "total bilirubin",
+        "serum bilirubin",
+        "bilirubin total",
+        "bili total"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 0.2,
+        "max": 1.2
+      },
+      "critical_low": null,
+      "critical_high": 5.0,
+      "description": {
+        "en": "Yellow substance from red cell breakdown; checks for jaundice",
+        "hi": "पीलिया जांचने वाला पित्त तत्व",
+        "ml": "മഞ്ഞപ്പിത്തം പരിശോധിക്കുന്ന പിത്തരസ ഘടകം",
+        "ta": "மஞ்சள் காமாலையை கண்டறியும் பித்தப்பொருள்"
+      }
+    },
+    "direct_bilirubin": {
+      "canonical_name": "Direct Bilirubin (Conjugated)",
+      "panel": "liver",
+      "aliases": [
+        "direct bilirubin",
+        "conjugated bilirubin",
+        "bilirubin direct",
+        "bili direct"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 0.0,
+        "max": 0.3
+      },
+      "critical_low": null,
+      "critical_high": 2.0,
+      "description": {
+        "en": "Bilirubin processed directly by the liver",
+        "hi": "लिवर द्वारा संसाधित प्रत्यक्ष बिलीरुबिन",
+        "ml": "കരൾ നേരിട്ട് സംസ്കരിച്ച ബിലിറൂബിൻ",
+        "ta": "கல்லீரலால் நேரடியாக செயலாக்கப்பட்ட பிலிரூபின்"
+      }
+    },
+    "indirect_bilirubin": {
+      "canonical_name": "Indirect Bilirubin (Unconjugated)",
+      "panel": "liver",
+      "aliases": [
+        "indirect bilirubin",
+        "unconjugated bilirubin",
+        "bilirubin indirect",
+        "bili indirect"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 0.1,
+        "max": 0.9
+      },
+      "critical_low": null,
+      "critical_high": 3.0,
+      "description": {
+        "en": "Bilirubin traveling in blood before liver processing",
+        "hi": "लिवर पहुंचने से पहले खून में मौजूद बिलीरुबिन",
+        "ml": "കരളിലെത്തുന്നതിന് മുമ്പ് രക്തത്തിലുള്ള ബിലിറൂബിൻ",
+        "ta": "கல்லீரலை அடைவதற்கு முன் இரத்தத்தில் உள்ள பிலிரூபின்"
+      }
+    },
+    "sgpt_alt": {
+      "canonical_name": "SGPT / ALT",
+      "panel": "liver",
+      "aliases": [
+        "sgpt",
+        "alt",
+        "alanine aminotransferase",
+        "alanine transaminase",
+        "sgpt/alt",
+        "sgpt alt"
+      ],
+      "unit": "U/L",
+      "normal": {
+        "min": 0.0,
+        "max": 45.0
+      },
+      "critical_low": null,
+      "critical_high": 200.0,
+      "description": {
+        "en": "Liver enzyme that reflects healthy liver cells",
+        "hi": "लिवर कोशिकाओं के स्वास्थ्य को दर्शाने वाला एंजाइम",
+        "ml": "കരൾ കോശങ്ങളുടെ ആരോഗ്യം വ്യക്തമാക്കുന്ന എൻസൈം",
+        "ta": "கல்லீரல் செல்களின் ஆரோக்கியத்தைக் காட்டும் நொதி"
+      }
+    },
+    "sgot_ast": {
+      "canonical_name": "SGOT / AST",
+      "panel": "liver",
+      "aliases": [
+        "sgot",
+        "ast",
+        "aspartate aminotransferase",
+        "aspartate transaminase",
+        "sgot/ast",
+        "sgot ast"
+      ],
+      "unit": "U/L",
+      "normal": {
+        "min": 0.0,
+        "max": 40.0
+      },
+      "critical_low": null,
+      "critical_high": 200.0,
+      "description": {
+        "en": "Enzyme found in liver and heart tissues",
+        "hi": "लिवर और मांसपेशियों में पाया जाने वाला एंजाइम",
+        "ml": "കരളിലും പേശികളിലും കാണപ്പെടുന്ന എൻസൈം",
+        "ta": "கல்லீரல் மற்றும் தசை திசுக்களில் காணப்படும் நொதி"
+      }
+    },
+    "alkaline_phosphatase": {
+      "canonical_name": "Alkaline Phosphatase (ALP)",
+      "panel": "liver",
+      "aliases": [
+        "alkaline phosphatase",
+        "alp",
+        "serum alkaline phosphatase"
+      ],
+      "unit": "U/L",
+      "normal": {
+        "min": 44.0,
+        "max": 147.0
+      },
+      "critical_low": 20.0,
+      "critical_high": 400.0,
+      "description": {
+        "en": "Enzyme related to bile ducts and bone health",
+        "hi": "पित्त नली और हड्डियों के स्वास्थ्य से जुड़ा एंजाइम",
+        "ml": "പിത്തരസക്കുഴലുകളുടെയും അസ്ഥികളുടെയും ആരോഗ്യം കാണിക്കുന്ന എൻസൈം",
+        "ta": "பித்த நாளங்கள் மற்றும் எலும்பு ஆரோக்கியம் சார்ந்த நொதி"
+      }
+    },
+    "total_protein": {
+      "canonical_name": "Total Protein",
+      "panel": "liver",
+      "aliases": [
+        "total protein",
+        "serum total protein",
+        "protein total"
+      ],
+      "unit": "g/dL",
+      "normal": {
+        "min": 6.0,
+        "max": 8.3
+      },
+      "critical_low": 4.0,
+      "critical_high": 10.0,
+      "description": {
+        "en": "Total building-block proteins made mostly by liver",
+        "hi": "लिवर द्वारा निर्मित शरीर के कुल पोषक प्रोटीन",
+        "ml": "കരൾ നിർമ്മിക്കുന്ന ആകെ പ്രോട്ടീൻ്റെ അളവ്",
+        "ta": "கல்லீரலால் உருவாக்கப்படும் உடலின் மொத்த புரதம்"
+      }
+    },
+    "albumin": {
+      "canonical_name": "Serum Albumin",
+      "panel": "liver",
+      "aliases": [
+        "serum albumin",
+        "albumin"
+      ],
+      "unit": "g/dL",
+      "normal": {
+        "min": 3.5,
+        "max": 5.2
+      },
+      "critical_low": 2.0,
+      "critical_high": 6.0,
+      "description": {
+        "en": "Main blood protein keeping fluids inside vessels",
+        "hi": "रक्त वाहिकाओं में तरल पदार्थ रोकने वाला मुख्य प्रोटीन",
+        "ml": "രക്തക്കുഴലുകളിൽ ദ്രാവകം നിലനിർത്താൻ സഹായിക്കുന്ന പ്രോട്ടീൻ",
+        "ta": "இரத்த நாளங்களில் திரவத்தை தக்கவைக்கும் முக்கிய புரதம்"
+      }
+    },
+    "globulin": {
+      "canonical_name": "Serum Globulin",
+      "panel": "liver",
+      "aliases": [
+        "serum globulin",
+        "globulin"
+      ],
+      "unit": "g/dL",
+      "normal": {
+        "min": 2.0,
+        "max": 3.5
+      },
+      "critical_low": 1.0,
+      "critical_high": 5.0,
+      "description": {
+        "en": "Proteins that support the immune system and antibody defense",
+        "hi": "रोग प्रतिरोधक क्षमता और एंटीबॉडी बनाने वाला प्रोटीन",
+        "ml": "രോഗപ്രതിരോധത്തിന് സഹായിക്കുന്ന പ്രോട്ടീൻ ഘടകം",
+        "ta": "நோய் எதிர்ப்பு சக்திக்கு உதவும் புரதக்கூறு"
+      }
+    },
+    "ag_ratio": {
+      "canonical_name": "Albumin / Globulin (A/G) Ratio",
+      "panel": "liver",
+      "aliases": [
+        "a/g ratio",
+        "albumin globulin ratio",
+        "ag ratio",
+        "albumin/globulin ratio"
+      ],
+      "unit": "ratio",
+      "normal": {
+        "min": 1.1,
+        "max": 2.2
+      },
+      "critical_low": 0.6,
+      "critical_high": 3.0,
+      "description": {
+        "en": "Healthy balance between liver albumin and defense globulin",
+        "hi": "एल्ब्यूमिन और ग्लोब्युलिन प्रोटीन का स्वस्थ संतुलन",
+        "ml": "രക്തത്തിലെ ആൽബുമിനും ഗ്ലോബുലിനും തമ്മിലുള്ള ശരിയായ അനുപാതം",
+        "ta": "இரத்த புரதங்களின் சரியான சமநிலை விகிதம்"
+      }
+    },
+    "ggt": {
+      "canonical_name": "Gamma GT (GGT)",
+      "panel": "liver",
+      "aliases": [
+        "gamma glutamyl transferase",
+        "ggt",
+        "gamma gt",
+        "gamma-glutamyl transferase"
+      ],
+      "unit": "U/L",
+      "normal": {
+        "min": 9.0,
+        "max": 48.0
+      },
+      "critical_low": null,
+      "critical_high": 250.0,
+      "description": {
+        "en": "Sensitive liver enzyme for bile and liver flow",
+        "hi": "लिवर और पित्त प्रवाह की संवेदनशीलता दर्शाने वाला एंजाइम",
+        "ml": "കരളിൻ്റെയും പിത്തരസത്തിൻ്റെയും പ്രവർത്തനം കാണിക്കുന്ന എൻസൈം",
+        "ta": "கல்லீரலின் செயல்பாட்டை மிகத் துல்லியமாகக் காட்டும் நொதி"
+      }
+    },
+    "serum_creatinine": {
+      "canonical_name": "Serum Creatinine",
+      "panel": "kidney",
+      "aliases": [
+        "serum creatinine",
+        "creatinine"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 0.6,
+        "max": 1.2
+      },
+      "critical_low": 0.3,
+      "critical_high": 4.0,
+      "description": {
+        "en": "Kidney filter function test",
+        "hi": "गुर्दे (किडनी) की कार्यप्रणाली की जांच",
+        "ml": "വൃക്കകളുടെ (കിഡ്നി) പ്രവർത്തനം പരിശോധിക്കുന്ന അളവ്",
+        "ta": "சிறுநீரகத்தின் செயல்பாட்டை குறிக்கும் அளவு"
+      }
+    },
+    "blood_urea": {
+      "canonical_name": "Blood Urea",
+      "panel": "kidney",
+      "aliases": [
+        "blood urea",
+        "serum urea",
+        "urea"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 15.0,
+        "max": 45.0
+      },
+      "critical_low": 5.0,
+      "critical_high": 100.0,
+      "description": {
+        "en": "Waste product cleared from body by the kidneys",
+        "hi": "किडनी द्वारा साफ किया जाने वाला अपशिष्ट तत्व",
+        "ml": "വൃക്കകൾ രക്തത്തിൽ നിന്ന് നീക്കം ചെയ്യുന്ന മാലിന്യം",
+        "ta": "சிறுநீரகங்களால் வெளியேற்றப்படும் கழிவுப்பொருள்"
+      }
+    },
+    "blood_urea_nitrogen": {
+      "canonical_name": "Blood Urea Nitrogen (BUN)",
+      "panel": "kidney",
+      "aliases": [
+        "bun",
+        "blood urea nitrogen"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 7.0,
+        "max": 20.0
+      },
+      "critical_low": 3.0,
+      "critical_high": 50.0,
+      "description": {
+        "en": "Nitrogen waste indicating healthy kidney cleansing",
+        "hi": "किडनी की सफाई क्षमता दर्शाने वाला नाइट्रोजन अपशिष्ट",
+        "ml": "വൃക്കകളുടെ ശുദ്ധീകരണ ശേഷി വ്യക്തമാക്കുന്ന നൈട്രജൻ അളവ്",
+        "ta": "சிறுநீரகங்களின் தூய்மையாக்கும் திறனைக் குறிக்கும் அளவு"
+      }
+    },
+    "uric_acid": {
+      "canonical_name": "Serum Uric Acid",
+      "panel": "kidney",
+      "aliases": [
+        "serum uric acid",
+        "uric acid"
+      ],
+      "unit": "mg/dL",
+      "normal": {
+        "min": 3.5,
+        "max": 7.2
+      },
+      "critical_low": 1.5,
+      "critical_high": 12.0,
+      "description": {
+        "en": "Joint and kidney waste; high levels can cause joint pain",
+        "hi": "जोड़ों और किडनी का अपशिष्ट; अधिक होने पर जोड़ों में दर्द हो सकता है",
+        "ml": "സന്ധിവേദനയ്ക്കും വൃക്കയിലെ കല്ലിനും കാരണമാകുന്ന മാലിന്യ ഘടകം",
+        "ta": "மூட்டு வலி மற்றும் சிறுநீரக கற்களுக்கு காரணமான பொருள்"
+      }
+    },
+    "tsh": {
+      "canonical_name": "TSH (Thyroid Stimulating Hormone)",
+      "panel": "thyroid",
+      "aliases": [
+        "tsh",
+        "thyroid stimulating hormone",
+        "ultra tsh"
+      ],
+      "unit": "uIU/mL",
+      "normal": {
+        "min": 0.4,
+        "max": 4.5
+      },
+      "critical_low": 0.05,
+      "critical_high": 20.0,
+      "description": {
+        "en": "Thyroid hormone controlling body energy & metabolism",
+        "hi": "शरीर की ऊर्जा नियंत्रित करने वाला थायराइड हार्मोन",
+        "ml": "ശരീരത്തിന്റെ പ്രവർത്തനവേഗത നിയന്ത്രിക്കുന്ന തൈറോയ്ഡ് ഹോർമോൺ",
+        "ta": "உடல் ஆற்றலைக் கட்டுப்படுத்தும் தைராய்டு ஹார்மோன்"
+      }
+    },
+    "total_t3": {
+      "canonical_name": "Total T3 (Triiodothyronine)",
+      "panel": "thyroid",
+      "aliases": [
+        "total t3",
+        "triiodothyronine total",
+        "t3 total",
+        "serum t3",
+        "t3"
+      ],
+      "unit": "ng/mL",
+      "normal": {
+        "min": 0.8,
+        "max": 2.0
+      },
+      "critical_low": 0.4,
+      "critical_high": 4.0,
+      "description": {
+        "en": "Active hormone that sets your body metabolic rate",
+        "hi": "शरीर की गति और ऊर्जा निर्धारित करने वाला सक्रिय हार्मोन",
+        "ml": "ശരീരത്തിലെ ഉപാപചയ പ്രവർത്തനങ്ങളെ നിയന്ത്രിക്കുന്ന ഹോർമോൺ",
+        "ta": "உடலின் வளர்சிதை மாற்றத்தை இயக்கும் தைராய்டு ஹார்மோன்"
+      }
+    },
+    "free_t3": {
+      "canonical_name": "Free T3 (FT3)",
+      "panel": "thyroid",
+      "aliases": [
+        "free t3",
+        "ft3",
+        "free triiodothyronine"
+      ],
+      "unit": "pg/mL",
+      "normal": {
+        "min": 2.0,
+        "max": 4.4
+      },
+      "critical_low": 1.0,
+      "critical_high": 8.0,
+      "description": {
+        "en": "Freely circulating thyroid hormone ready for body use",
+        "hi": "शरीर की कोशिकाओं के लिए उपलब्ध सक्रिय थायराइड हार्मोन",
+        "ml": "ശരീരകോശങ്ങൾക്ക് ഉടനടി ഉപയോഗിക്കാവുന്ന സ്വതന്ത്ര ടി3 ഹോർമോൺ",
+        "ta": "உடல் செல்களுக்கு உடனடியாக கிடைக்கக்கூடிய இலவச T3 ஹார்மோன்"
+      }
+    },
+    "total_t4": {
+      "canonical_name": "Total T4 (Thyroxine)",
+      "panel": "thyroid",
+      "aliases": [
+        "total t4",
+        "thyroxine total",
+        "t4 total",
+        "serum t4",
+        "t4"
+      ],
+      "unit": "ug/dL",
+      "normal": {
+        "min": 5.0,
+        "max": 12.0
+      },
+      "critical_low": 2.0,
+      "critical_high": 20.0,
+      "description": {
+        "en": "Primary hormone released by the thyroid gland",
+        "hi": "थायराइड ग्रंथि द्वारा मुख्य रूप से बनाया जाने वाला हार्मोन",
+        "ml": "തൈറോയ്ഡ് ഗ്രന്ഥി പ്രധാനമായും ഉൽപ്പാദിപ്പിക്കുന്ന ഹോർമോൺ",
+        "ta": "தைராய்டு சுரப்பியால் உற்பத்தி செய்யப்படும் முக்கிய ஹார்மோன்"
+      }
+    },
+    "free_t4": {
+      "canonical_name": "Free T4 (FT4)",
+      "panel": "thyroid",
+      "aliases": [
+        "free t4",
+        "ft4",
+        "free thyroxine"
+      ],
+      "unit": "ng/dL",
+      "normal": {
+        "min": 0.8,
+        "max": 1.8
+      },
+      "critical_low": 0.4,
+      "critical_high": 3.5,
+      "description": {
+        "en": "Unbound thyroxine actively influencing body tissues",
+        "hi": "ऊतकों को सक्रिय ऊर्जा देने वाला मुक्त थायरोक्सिन हार्मोन",
+        "ml": "ശരീരകലകളിൽ സജീവമായി പ്രവർത്തിക്കുന്ന സ്വതന്ത്ര ടി4 ഹോർമോൺ",
+        "ta": "உடல் திசுக்களில் நேரடியாக செயல்படும் இலவச T4 ஹார்மோன்"
       }
     }
   }

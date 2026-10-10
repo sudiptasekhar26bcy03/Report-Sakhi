@@ -225,10 +225,30 @@ class CheckerAgent:
                 "ta": f"ஆய்வக சோதனை: {canonical_name}"
             }
 
+        # Determine panel category (cbc, diabetes, lipids, liver, kidney, thyroid, general)
+        panel = rule.get("panel")
+        if not panel:
+            combined_name = f"{raw_name} {canonical_name}".lower()
+            if any(k in combined_name for k in ["wbc", "rbc", "hemoglobin", "haemoglobin", "platelet", "hct", "mcv", "mch", "neutrophil", "lymphocyte", "monocyte", "eosinophil", "basophil", "esr", "pcv"]):
+                panel = "cbc"
+            elif any(k in combined_name for k in ["sugar", "glucose", "fbs", "ppbs", "rbs", "hba1c"]):
+                panel = "diabetes"
+            elif any(k in combined_name for k in ["cholesterol", "lipid", "triglyceride", "hdl", "ldl", "vldl"]):
+                panel = "lipids"
+            elif any(k in combined_name for k in ["bilirubin", "sgpt", "sgot", "alt", "ast", "alkaline phosphatase", "alp", "albumin", "globulin", "protein", "ggt", "lft"]):
+                panel = "liver"
+            elif any(k in combined_name for k in ["creatinine", "urea", "bun", "uric acid", "kft", "rft"]):
+                panel = "kidney"
+            elif any(k in combined_name for k in ["tsh", "t3", "t4", "ft3", "ft4", "thyroid"]):
+                panel = "thyroid"
+            else:
+                panel = "general"
+
         return {
             "test_name": raw_name,
             "canonical_name": canonical_name,
             "rule_key": rule_key,
+            "panel": panel,
             "value": val,
             "unit": unit,
             "color": color,           # "green" | "yellow" | "red"
