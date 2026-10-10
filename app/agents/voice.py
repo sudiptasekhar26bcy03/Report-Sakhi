@@ -146,8 +146,8 @@ LANGUAGE_MAP = {
 
 class VoiceAgent:
     def __init__(self, provider: Optional[str] = None):
-        cfg_provider = getattr(settings, "voice_provider", "bhashini")
-        self.provider = (provider or cfg_provider or "bhashini").lower().strip()
+        cfg_provider = getattr(settings, "voice_provider", "google")
+        self.provider = (provider or cfg_provider or "google").lower().strip()
         
         # Credentials & audio quality settings from config / environment
         self.bhashini_user_id = getattr(settings, "bhashini_user_id", "") or os.getenv("BHASHINI_USER_ID", "")
@@ -161,7 +161,7 @@ class VoiceAgent:
             self.bhashini_sampling_rate = 22050
 
         self.sarvam_key = getattr(settings, "sarvam_api_key", "") or os.getenv("SARVAM_API_KEY", "")
-        self.google_key = getattr(settings, "google_speech_api_key", "") or os.getenv("GOOGLE_SPEECH_API_KEY", "")
+        self.google_key = getattr(settings, "google_speech_api_key", "") or os.getenv("GOOGLE_SPEECH_API_KEY", "") or getattr(settings, "gemini_api_key", "") or os.getenv("GEMINI_API_KEY", "")
         self.azure_key = getattr(settings, "azure_speech_key", "") or os.getenv("AZURE_SPEECH_KEY", "")
         self.azure_region = getattr(settings, "azure_speech_region", "") or os.getenv("AZURE_SPEECH_REGION", "centralindia")
 
@@ -195,8 +195,8 @@ class VoiceAgent:
         if self.provider == "browser":
             return ["browser"]
 
-        all_remote = ["bhashini", "sarvam", "google", "azure"]
-        primary = self.provider if self.provider in all_remote else "bhashini"
+        all_remote = ["google", "bhashini", "sarvam", "azure"]
+        primary = self.provider if self.provider in all_remote else "google"
 
         # Primary first, then remaining remote providers, ending with browser
         chain = [primary] + [p for p in all_remote if p != primary] + ["browser"]
@@ -376,33 +376,78 @@ class VoiceAgent:
         return None
 
     async def _synthesize_google(self, text: str, lang: str) -> Optional[Dict[str, Any]]:
-        """Synthesizes speech using Google Cloud Text-to-Speech API."""
+        """Synthesizes speech using Google Cloud Text-to-Speech API or Gemini TTS model."""
         if not self.google_key:
             return None
 
-        url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={self.google_key}"
-        target_lang = LANGUAGE_MAP.get(lang, {}).get("google", "en-IN")
+        # 1. Try Google Cloud Text-to-Speech REST API
+        try:
+            url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={self.google_key}"
+            target_lang = LANGUAGE_MAP.get(lang, {}).get("google", "en-IN")
 
-        payload = {
-            "input": {"text": text},
-            "voice": {"languageCode": target_lang, "ssmlGender": "FEMALE"},
-            "audioConfig": {"audioEncoding": "MP3"}
-        }
+            payload = {
+                "input": {"text": text},
+                "voice": {"languageCode": target_lang, "ssmlGender": "FEMALE"},
+                "audioConfig": {"audioEncoding": "MP3"}
+            }
 
-        async with httpx.AsyncClient(timeout=8.0) as client:
-            resp = await client.post(url, json=payload)
-            if resp.status_code == 200:
-                data = resp.json()
-                audio_content = data.get("audioContent")
-                if audio_content:
-                    return {
-                        "provider": "google",
-                        "language_code": lang,
-                        "audio_base64": audio_content,
-                        "audio_format": "audio/mp3",
-                        "client_speech_text": text,
-                        "status": "ready"
-                    }
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                resp = await client.post(url, json=payload)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    audio_content = data.get("audioContent")
+                    if audio_content:
+                        return {
+                            "provider": "google",
+                            "language_code": lang,
+                            "audio_base64": audio_content,
+                            "audio_format": "audio/mp3",
+                            "client_speech_text": text,
+                            "status": "ready"
+                        }
+                else:
+                    logger.debug(f"Google Cloud TTS REST returned status {resp.status_code}. Falling back to Google GenAI TTS...")
+        except Exception as e:
+            logger.debug(f"Google Cloud TTS REST attempt failed: {e}. Falling back to Google GenAI TTS...")
+
+        # 2. Try Google GenAI TTS (gemini-3.8-flash-tts)
+        try:
+            import asyncio
+            from google import genai
+            from google.genai import types
+
+            client = genai.Client(api_key=self.google_key)
+            lang_names = {
+                "ml": "Malayalam", "hi": "Hindi", "ta": "Tamil", "te": "Telugu",
+                "kn": "Kannada", "bn": "Bengali", "mr": "Marathi", "gu": "Gujarati",
+                "pa": "Punjabi", "or": "Odia", "as": "Assamese", "ur": "Urdu", "en": "English"
+            }
+            lang_label = lang_names.get(lang, "English")
+            prompt = f"Read this text clearly and warmly aloud in {lang_label}: {text}"
+
+            response = await asyncio.to_thread(
+                client.models.generate_content,
+                model="gemini-3.8-flash-tts",
+                contents=prompt,
+                config=types.GenerateContentConfig(response_modalities=["AUDIO"])
+            )
+            if response and response.candidates and response.candidates[0].content:
+                parts = response.candidates[0].content.parts or []
+                for part in parts:
+                    if hasattr(part, "inline_data") and part.inline_data and part.inline_data.data:
+                        b64_audio = base64.b64encode(part.inline_data.data).decode("utf-8")
+                        mime = part.inline_data.mime_type or "audio/wav"
+                        return {
+                            "provider": "google",
+                            "language_code": lang,
+                            "audio_base64": b64_audio,
+                            "audio_format": mime,
+                            "client_speech_text": text,
+                            "status": "ready"
+                        }
+        except Exception as e:
+            logger.warning(f"Google GenAI TTS error: {e}")
+
         return None
 
     async def _synthesize_azure(self, text: str, lang: str) -> Optional[Dict[str, Any]]:
@@ -656,23 +701,72 @@ class VoiceAgent:
             }
         }
 
-        async with httpx.AsyncClient(timeout=8.0) as client:
-            resp = await client.post(url, json=payload)
-            if resp.status_code == 200:
-                data = resp.json()
-                results = data.get("results", [])
-                if results:
-                    alternatives = results[0].get("alternatives", [])
-                    if alternatives:
-                        transcript = alternatives[0].get("transcript", "").strip()
-                        confidence = float(alternatives[0].get("confidence", 0.90))
-                        if transcript:
-                            return {
-                                "provider": "google",
-                                "transcript": transcript,
-                                "confidence": confidence,
-                                "status": "success"
-                            }
+        # 1. Try Google Cloud Speech REST API
+        try:
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                resp = await client.post(url, json=payload)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    results = data.get("results", [])
+                    if results:
+                        alternatives = results[0].get("alternatives", [])
+                        if alternatives:
+                            transcript = alternatives[0].get("transcript", "").strip()
+                            confidence = float(alternatives[0].get("confidence", 0.90))
+                            if transcript:
+                                return {
+                                    "provider": "google",
+                                    "transcript": transcript,
+                                    "confidence": confidence,
+                                    "status": "success"
+                                }
+        except Exception as e:
+            logger.debug(f"Google Cloud Speech REST attempt failed: {e}. Falling back to Google GenAI STT...")
+
+        # 2. Try Google GenAI Multimodal Audio STT (gemini-3.5-flash)
+        try:
+            import asyncio
+            from google import genai
+            from google.genai import types
+
+            client = genai.Client(api_key=self.google_key)
+            detected_format = self.detect_audio_format(audio_bytes).lower()
+            mime_map = {
+                "wav": "audio/wav",
+                "mp3": "audio/mp3",
+                "ogg": "audio/ogg",
+                "webm": "audio/webm",
+                "flac": "audio/flac"
+            }
+            mime = mime_map.get(detected_format, "audio/wav")
+
+            lang_names = {
+                "ml": "Malayalam", "hi": "Hindi", "ta": "Tamil", "te": "Telugu",
+                "kn": "Kannada", "bn": "Bengali", "mr": "Marathi", "gu": "Gujarati",
+                "pa": "Punjabi", "or": "Odia", "as": "Assamese", "ur": "Urdu", "en": "English"
+            }
+            lang_label = lang_names.get(lang, "English")
+
+            response = await asyncio.to_thread(
+                client.models.generate_content,
+                model="gemini-3.5-flash",
+                contents=[
+                    types.Part.from_bytes(data=audio_bytes, mime_type=mime),
+                    f"Transcribe the patient's spoken words verbatim in {lang_label}. Return ONLY the transcribed text without commentary."
+                ]
+            )
+            if response and response.text:
+                transcript = response.text.strip()
+                if transcript:
+                    return {
+                        "provider": "google",
+                        "transcript": transcript,
+                        "confidence": 0.95,
+                        "status": "success"
+                    }
+        except Exception as e:
+            logger.warning(f"Google GenAI STT error: {e}")
+
         return None
 
     async def _transcribe_azure(self, audio_bytes: bytes, lang: str) -> Optional[Dict[str, Any]]:

@@ -9,6 +9,10 @@ from app.main import app
 class TestVoiceAgent(unittest.TestCase):
     def setUp(self):
         self.voice = VoiceAgent(provider="bhashini")
+        self.voice.google_key = ""
+        self.voice.bhashini_api_key = ""
+        self.voice.sarvam_key = ""
+        self.voice.azure_key = ""
 
     def test_default_provider_is_bhashini(self):
         self.assertEqual(self.voice.provider, "bhashini")

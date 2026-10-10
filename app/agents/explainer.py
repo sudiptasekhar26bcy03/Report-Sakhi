@@ -75,24 +75,33 @@ class ExplainerAgent:
             return f"{stripped} {EXACT_SAFETY_DISCLAIMER}".strip()
         return stripped
 
-    async def generate_explanation(self, checked_data: Dict[str, Any], language: str = "en") -> Dict[str, Any]:
+    async def generate_explanation(
+        self,
+        checked_data: Dict[str, Any],
+        language: str = "en",
+        comparison: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Generates a short, compassionate explanation at a Class 5 reading level.
         Never diagnoses and appends the exact mandatory disclaimer to every result.
-        
-        Returns:
-        {
-            "language": str,
-            "headline": str,
-            "summary_text": str,
-            "key_points": [str],
-            "safety_line": "This explains your report. It is not a diagnosis. Please consult a doctor.",
-            "safety_line_localized": str,
-            "full_speech_script": str
-        }
+        Explicitly mentions longitudinal progress or regression since the last test if provided.
         """
         lang = language if language in LOCALIZED_SAFETY_DISCLAIMERS else "en"
         localized_safety = LOCALIZED_SAFETY_DISCLAIMERS.get(lang, EXACT_SAFETY_DISCLAIMER)
+
+        # Build comparison prompt snippet if history exists
+        comparison_context = ""
+        if comparison and comparison.get("has_comparison"):
+            comparison_context = f"""
+LONGITUDINAL COMPARISON SINCE PREVIOUS TEST:
+{json.dumps(comparison.get("comparisons", []), indent=2)}
+Overall trajectory: {comparison.get("overall_trajectory", "stable")}
+Spoken trend cues: {json.dumps(comparison.get("spoken_summary", {}), indent=2)}
+
+MANDATORY LONGITUDINAL PROGRESS INSTRUCTION:
+The patient has taken a previous test. You MUST explicitly mention the progress or regression since the last test in both the summary and the spoken voice script (e.g. 'Your sugar is lower than last time' or 'Your hemoglobin has improved since your last test').
+Acknowledge positive improvements warmly and encourage them if any values need doctor consultation.
+"""
 
         # If Gemini client is active, request empathetic Class 5 explanation
         if self.client:
@@ -103,28 +112,30 @@ Language requested: {lang} (ml=Malayalam, hi=Hindi, ta=Tamil, en=English).
 
 Evaluated lab report items:
 {json.dumps(checked_data, indent=2)}
-
+{comparison_context}
 MANDATORY SAFETY RULES:
 1. READING LEVEL: Class 5 elementary vocabulary. Keep sentences short, warm, and comforting (no complex medical jargon like 'hyperglycemia', 'erythrocytes', etc.).
 2. NEVER DIAGNOSE: You MUST NOT diagnose any disease, illness, or medical condition. Never say 'You have diabetes' or 'You have anemia'. Only mention whether values are in the usual safe range or need a doctor's checkup.
-3. LENGTH: Keep the entire summary short (2 to 3 concise, calm sentences).
-4. MANDATORY CONCLUSION: The summary and speech script MUST end with this exact sentence:
+3. LONGITUDINAL TREND: If previous test data is given above, you MUST explicitly speak about whether values are higher, lower, or improved compared to the last test.
+4. LENGTH: Keep the entire summary concise and calm (2 to 4 sentences).
+5. MANDATORY CONCLUSION: The summary and speech script MUST end with this exact sentence:
 "{EXACT_SAFETY_DISCLAIMER}"
 
 Format output strictly as JSON with keys:
 {{
   "headline": "Short 1-sentence calming summary (Class 5 level)",
-  "summary_text": "Short 2-3 sentence warm explanation in {lang} ending with the mandatory disclaimer",
+  "summary_text": "Short 2-4 sentence warm explanation in {lang} mentioning progress since last test and ending with the mandatory disclaimer",
   "key_points": ["Point 1 in {lang}", "Point 2 in {lang}"],
-  "full_speech_script": "The spoken voice script to read aloud to the patient ending with the mandatory disclaimer"
+  "full_speech_script": "The spoken voice script to read aloud to the patient explicitly mentioning the progress/difference since last test and ending with the mandatory disclaimer"
 }}"""
 
                 # pyrefly: ignore [missing-import]
                 from google.genai import types
 
+                model_name = getattr(self, "model", None) or os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
                 if hasattr(self.client, "aio") and self.client.aio:
                     response = await self.client.aio.models.generate_content(
-                        model="gemini-2.5-flash",
+                        model=model_name,
                         contents=prompt,
                         config=types.GenerateContentConfig(
                             response_mime_type="application/json",
@@ -135,7 +146,7 @@ Format output strictly as JSON with keys:
                     import asyncio
                     response = await asyncio.to_thread(
                         self.client.models.generate_content,
-                        model="gemini-2.5-flash",
+                        model=model_name,
                         contents=prompt,
                         config=types.GenerateContentConfig(
                             response_mime_type="application/json",
@@ -168,18 +179,29 @@ Format output strictly as JSON with keys:
                 logger.error(f"Gemini generation error in ExplainerAgent: {e}")
 
         # High-fidelity localized Class 5 template fallback
-        return self._generate_templated_explanation(checked_data, lang)
+        return self._generate_templated_explanation(checked_data, lang, comparison=comparison)
 
-    def _generate_templated_explanation(self, checked_data: Dict[str, Any], lang: str) -> Dict[str, Any]:
+    def _generate_templated_explanation(
+        self,
+        checked_data: Dict[str, Any],
+        lang: str,
+        comparison: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Deterministic, Class 5 reading level explanation fallback.
         Strictly never diagnoses and appends the exact mandatory disclaimer.
+        Explicitly mentions longitudinal progress or regression since the last test if provided.
         """
         items = checked_data.get("items", [])
         
         green_items = [i.get("canonical_name", i.get("test_name", "")) for i in items if i.get("color") == "green"]
         yellow_items = [i.get("canonical_name", i.get("test_name", "")) for i in items if i.get("color") == "yellow"]
         red_items = [i.get("canonical_name", i.get("test_name", "")) for i in items if i.get("color") == "red"]
+
+        comp_spoken = ""
+        if comparison and comparison.get("has_comparison"):
+            spoken_dict = comparison.get("spoken_summary", {})
+            comp_spoken = (spoken_dict.get(lang) or spoken_dict.get("en") or "").strip()
 
         if lang == "ml":
             if red_items:
@@ -192,6 +214,9 @@ Format output strictly as JSON with keys:
                 headline = "എല്ലാ പ്രധാന പരിശോധനാ ഫലങ്ങളും സാധാരണ നിലയിലാണ്."
                 body = "നമസ്കാരം. സന്തോഷവാർത്ത! നിങ്ങളുടെ പരിശോധിച്ച പ്രധാന ഫലങ്ങളെല്ലാം സാധാരണ സുരക്ഷിത നിലയിലാണ്."
 
+            if comp_spoken:
+                body = f"{body} {comp_spoken}"
+
             points = []
             if green_items:
                 points.append(f"സാധാരണ നിലയിലുള്ളവ: {', '.join(green_items)}")
@@ -199,6 +224,8 @@ Format output strictly as JSON with keys:
                 points.append(f"ശ്രദ്ധിക്കേണ്ടവ: {', '.join(yellow_items)}")
             if red_items:
                 points.append(f"ഉടൻ കാണിക്കേണ്ടവ: {', '.join(red_items)}")
+            if comp_spoken:
+                points.append(f"കഴിഞ്ഞ റിപ്പോർട്ടുമായുള്ള മാറ്റം: {comp_spoken}")
 
             summary = f"{body} {EXACT_SAFETY_DISCLAIMER}"
 
@@ -213,6 +240,9 @@ Format output strictly as JSON with keys:
                 headline = "सभी मुख्य परिणाम सामान्य और सुरक्षित सीमा में हैं।"
                 body = "नमस्ते। अच्छी खबर है! आपकी सभी मुख्य जांचें सामान्य और सुरक्षित दायरे में हैं।"
 
+            if comp_spoken:
+                body = f"{body} {comp_spoken}"
+
             points = []
             if green_items:
                 points.append(f"सामान्य परिणाम: {', '.join(green_items)}")
@@ -220,6 +250,8 @@ Format output strictly as JSON with keys:
                 points.append(f"ध्यान देने योग्य: {', '.join(yellow_items)}")
             if red_items:
                 points.append(f"तुरंत डॉक्टर को दिखाने योग्य: {', '.join(red_items)}")
+            if comp_spoken:
+                points.append(f"पिछली जांच से तुलना: {comp_spoken}")
 
             summary = f"{body} {EXACT_SAFETY_DISCLAIMER}"
 
@@ -234,6 +266,9 @@ Format output strictly as JSON with keys:
                 headline = "முக்கிய முடிவுகள் அனைத்தும் இயல்பான வரம்பில் உள்ளன."
                 body = "வணக்கம். மகிழ்ச்சியான செய்தி! உங்கள் பரிசோதனை முடிவுகள் அனைத்தும் இயல்பான ஆரோக்கியமான வரம்பில் உள்ளன."
 
+            if comp_spoken:
+                body = f"{body} {comp_spoken}"
+
             points = []
             if green_items:
                 points.append(f"இயல்பானவை: {', '.join(green_items)}")
@@ -241,6 +276,8 @@ Format output strictly as JSON with keys:
                 points.append(f"கவனிக்க வேண்டியவை: {', '.join(yellow_items)}")
             if red_items:
                 points.append(f"உடனடி கவனம் தேவை: {', '.join(red_items)}")
+            if comp_spoken:
+                points.append(f"கடந்த சோதனையுடன் ஒப்பீடு: {comp_spoken}")
 
             summary = f"{body} {EXACT_SAFETY_DISCLAIMER}"
 
@@ -255,6 +292,9 @@ Format output strictly as JSON with keys:
                 headline = "All checked routine test numbers are in the healthy normal range."
                 body = "Hello. Good news! All of your checked test values are within healthy normal limits."
 
+            if comp_spoken:
+                body = f"{body} {comp_spoken}"
+
             points = []
             if green_items:
                 points.append(f"Healthy normal: {', '.join(green_items)}")
@@ -262,6 +302,8 @@ Format output strictly as JSON with keys:
                 points.append(f"Needs doctor review: {', '.join(yellow_items)}")
             if red_items:
                 points.append(f"Needs urgent review: {', '.join(red_items)}")
+            if comp_spoken:
+                points.append(f"Trend vs Last Report: {comp_spoken}")
 
             summary = f"{body} {EXACT_SAFETY_DISCLAIMER}"
 
@@ -305,8 +347,9 @@ MANDATORY SAFETY RULES:
 
 Respond strictly in {lang} with simple, comforting text."""
 
+                model_name = getattr(self, "model", None) or os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
                 response = self.client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model=model_name,
                     contents=prompt
                 )
                 if response and response.text:

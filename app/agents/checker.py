@@ -37,14 +37,49 @@ class CheckerAgent:
             return {"tests": {}}
 
     @staticmethod
-    def _normalize_name(name: str) -> str:
+    def _normalize_name(name: Optional[str]) -> str:
         """Strip punctuation, spaces, and lowercase for matching."""
-        return re.sub(r"[^a-z0-9]", "", str(name).lower())
+        if not name:
+            return ""
+        return re.sub(r"[^a-z0-9]", "", name.lower())
+
+    @staticmethod
+    def _parse_reference_range(range_str: str) -> Tuple[Optional[float], Optional[float]]:
+        """
+        Parses min and max from lab report interval strings like:
+        '13 - 17', '4,800 - 10,800', '20 - 40', '31.5 - 34.5', '< 2', '> 10'
+        """
+        if not range_str:
+            return None, None
+        s = range_str.replace(",", "").strip()
+        # Pattern for "min - max" or "min to max"
+        m = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*(?:-|to)\s*([0-9]+(?:\.[0-9]+)?)", s, re.IGNORECASE)
+        if m:
+            try:
+                return float(m.group(1)), float(m.group(2))
+            except ValueError:
+                pass
+        # Pattern for "< max" or "<= max"
+        m = re.search(r"(?:<|<=)\s*([0-9]+(?:\.[0-9]+)?)", s)
+        if m:
+            try:
+                return 0.0, float(m.group(1))
+            except ValueError:
+                pass
+        # Pattern for "> min" or ">= min"
+        m = re.search(r"(?:>|>=)\s*([0-9]+(?:\.[0-9]+)?)", s)
+        if m:
+            try:
+                return float(m.group(1)), None
+            except ValueError:
+                pass
+        return None, None
 
     def find_matching_rule(self, test_name: str) -> Optional[Tuple[str, Dict[str, Any]]]:
         """
         Matches an extracted test name against canonical keys and aliases in ranges.json.
-        Returns (rule_key, rule_dict) or None if not recognized.
+        Uses exact matching first, then longest matching alias to prevent greedy collisions
+        (e.g., 'mean cell haemoglobin, mch' must match 'mch' and NEVER 'hemoglobin').
         """
         if not test_name:
             return None
@@ -60,7 +95,7 @@ class CheckerAgent:
             if self._normalize_name(test_key) == clean_target:
                 return test_key, test_def
 
-        # 2. Exact match on aliases or canonical name
+        # 2. Exact match on canonical name or aliases
         for test_key, test_def in tests_catalog.items():
             canonical = test_def.get("canonical_name", "")
             if self._normalize_name(canonical) == clean_target:
@@ -70,12 +105,23 @@ class CheckerAgent:
                 if self._normalize_name(alias) == clean_target:
                     return test_key, test_def
 
-        # 3. Substring / token matching (e.g., 'blood sugar fasting' matches 'fasting blood sugar')
+        # 3. Substring matching prioritized by longest matching alias (minimum 4 chars)
+        best_match = None
+        best_len = 0
         for test_key, test_def in tests_catalog.items():
             for alias in test_def.get("aliases", []):
                 alias_norm = self._normalize_name(alias)
-                if alias_norm and (alias_norm in clean_target or clean_target in alias_norm):
-                    return test_key, test_def
+                if len(alias_norm) >= 4 and alias_norm in clean_target:
+                    if len(alias_norm) > best_len:
+                        best_len = len(alias_norm)
+                        best_match = (test_key, test_def)
+                elif len(clean_target) >= 4 and clean_target in alias_norm:
+                    if len(clean_target) > best_len:
+                        best_len = len(clean_target)
+                        best_match = (test_key, test_def)
+
+        if best_match:
+            return best_match
 
         return None
 
@@ -86,11 +132,13 @@ class CheckerAgent:
           - 'green' for normal
           - 'yellow' for watch
           - 'red' for urgent
-        Returns None for unknown tests or unmeasurable values (skipping them).
+        Accurately respects the lab report's printed biological reference interval and flags.
         """
         raw_name = str(test_item.get("test_name", "")).strip()
         raw_val = test_item.get("value")
         raw_unit = str(test_item.get("unit", "")).strip()
+        raw_range = str(test_item.get("reference_range", "") or "").strip()
+        raw_flag = str(test_item.get("flag", "") or "").strip().upper()
 
         # Parse numerical value
         if raw_val is None:
@@ -103,29 +151,35 @@ class CheckerAgent:
             else:
                 val = float(raw_val)
         except (TypeError, ValueError):
-            # Unparseable value -> skip
             return None
 
         # Look up rule in ranges.json
         matched = self.find_matching_rule(raw_name)
-        if not matched:
-            # Unknown test -> skip
+
+        # Parse report's printed biological reference interval if available
+        rep_min, rep_max = self._parse_reference_range(raw_range)
+
+        # If rule was not found, only retain if report itself provided an explicit reference range or flag
+        if not matched and rep_min is None and rep_max is None and not raw_flag:
             return None
 
-        rule_key, rule = matched
+        rule_key = matched[0] if matched else "custom_lab_test"
+        rule = matched[1] if matched else {}
 
         canonical_name = rule.get("canonical_name", raw_name)
-        unit = rule.get("unit", raw_unit)
+        unit = raw_unit or rule.get("unit", "")
+
         normal = rule.get("normal", {})
-        min_norm = normal.get("min")
-        max_norm = normal.get("max")
+        min_norm = rep_min if rep_min is not None else normal.get("min")
+        max_norm = rep_max if rep_max is not None else normal.get("max")
         crit_low = rule.get("critical_low")
         crit_high = rule.get("critical_high")
 
         # Smart unit normalization for Platelets:
         # If reported as absolute count (e.g., 220000 /cumm) and rule uses lakhs/cumm (1.5 - 4.5)
-        if (rule_key == "platelets" or "platelet" in rule_key) and val > 1000:
+        if (rule_key == "platelets" or "platelet" in rule_key.lower()) and val > 1000:
             val = round(val / 100000.0, 2)
+            unit = "lakhs/cumm"
 
         # 1. Critical Urgent Check (RED)
         if (crit_low is not None and val < crit_low) or (crit_high is not None and val > crit_high):
@@ -135,11 +189,16 @@ class CheckerAgent:
             direction = "very_low" if (crit_low is not None and val < crit_low) else "very_high"
 
         # 2. Outside Normal Range Check (YELLOW - Watch)
-        elif (min_norm is not None and val < min_norm) or (max_norm is not None and val > max_norm):
+        elif (min_norm is not None and val < min_norm) or (max_norm is not None and val > max_norm) or raw_flag in ("L", "LOW", "H", "HIGH", "*"):
             color = "yellow"
             status_code = "watch"
             status_label = "Watch (Consult Doctor)"
-            direction = "low" if (min_norm is not None and val < min_norm) else "high"
+            if (min_norm is not None and val < min_norm) or raw_flag in ("L", "LOW"):
+                direction = "low"
+            elif (max_norm is not None and val > max_norm) or raw_flag in ("H", "HIGH"):
+                direction = "high"
+            else:
+                direction = "abnormal"
 
         # 3. Normal Range Check (GREEN - Normal)
         else:
@@ -148,7 +207,23 @@ class CheckerAgent:
             status_label = "Normal Range"
             direction = "optimal"
 
-        norm_formatted = f"{min_norm} - {max_norm} {unit}".strip() if (min_norm is not None and max_norm is not None) else ""
+        if raw_range:
+            norm_formatted = f"{raw_range} {unit}".strip()
+        elif min_norm is not None and max_norm is not None:
+            norm_formatted = f"{min_norm} - {max_norm} {unit}".strip()
+        elif max_norm is not None:
+            norm_formatted = f"< {max_norm} {unit}".strip()
+        else:
+            norm_formatted = ""
+
+        description = rule.get("description", {})
+        if not description:
+            description = {
+                "en": f"Lab parameter: {canonical_name}",
+                "hi": f"लैब परीक्षण: {canonical_name}",
+                "ml": f"ലാബ് പരിശോധന: {canonical_name}",
+                "ta": f"ஆய்வக சோதனை: {canonical_name}"
+            }
 
         return {
             "test_name": raw_name,
@@ -165,7 +240,7 @@ class CheckerAgent:
                 "max": max_norm,
                 "formatted": norm_formatted
             },
-            "description": rule.get("description", {})
+            "description": description
         }
 
     def check_results(self, raw_tests: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -207,4 +282,242 @@ class CheckerAgent:
             "skipped_count": len(skipped_tests),
             "skipped_tests": skipped_tests,
             "items": evaluated_items
+        }
+
+    def compare_with_previous(
+        self,
+        current_items: List[Dict[str, Any]],
+        previous_items: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Longitudinal Trend Tracker: Compares current test values against the previous report.
+        Calculates:
+          - Numerical difference (delta = current - previous)
+          - Percentage change
+          - Trajectory direction (up, down, same)
+          - Health impact (improved, worsened, stable)
+          - Multilingual spoken explanations for patient voice delivery.
+        """
+        if not current_items or not previous_items:
+            return {
+                "has_comparison": False,
+                "total_compared": 0,
+                "improved_count": 0,
+                "worsened_count": 0,
+                "stable_count": 0,
+                "overall_trajectory": "stable",
+                "comparisons": [],
+                "spoken_summary": {
+                    "en": "",
+                    "hi": "",
+                    "ml": "",
+                    "ta": ""
+                }
+            }
+
+        # Build index of previous tests
+        prev_by_key: Dict[str, Dict[str, Any]] = {}
+        prev_by_norm: Dict[str, Dict[str, Any]] = {}
+
+        for item in previous_items:
+            rkey = item.get("rule_key")
+            if rkey and rkey != "custom_lab_test":
+                prev_by_key[rkey] = item
+            cname = item.get("canonical_name") or item.get("test_name", "")
+            if cname:
+                prev_by_norm[self._normalize_name(cname)] = item
+            tname = item.get("test_name", "")
+            if tname:
+                prev_by_norm[self._normalize_name(tname)] = item
+
+        comparisons: List[Dict[str, Any]] = []
+
+        for curr in current_items:
+            rkey = curr.get("rule_key")
+            matched_prev = None
+            if rkey and rkey in prev_by_key:
+                matched_prev = prev_by_key[rkey]
+            else:
+                cname_norm = self._normalize_name(curr.get("canonical_name", ""))
+                tname_norm = self._normalize_name(curr.get("test_name", ""))
+                if cname_norm in prev_by_norm:
+                    matched_prev = prev_by_norm[cname_norm]
+                elif tname_norm in prev_by_norm:
+                    matched_prev = prev_by_norm[tname_norm]
+
+            if not matched_prev:
+                continue
+
+            curr_raw = curr.get("value")
+            prev_raw = matched_prev.get("value")
+            if curr_raw is None or prev_raw is None:
+                continue
+
+            try:
+                curr_val = float(curr_raw)
+                prev_val = float(prev_raw)
+            except (TypeError, ValueError):
+                continue
+
+            delta = round(curr_val - prev_val, 2)
+            pct_change = round(((curr_val - prev_val) / prev_val) * 100.0, 1) if prev_val != 0 else 0.0
+
+            if delta > 0.0001:
+                trend_dir = "up"
+            elif delta < -0.0001:
+                trend_dir = "down"
+            else:
+                trend_dir = "same"
+
+            # Determine clinical normal limits
+            normal_data = curr.get("normal_range") or matched_prev.get("normal_range") or {}
+            min_norm = normal_data.get("min")
+            max_norm = normal_data.get("max")
+
+            if min_norm is None and max_norm is None and rkey:
+                candidate_name = curr.get("canonical_name") or curr.get("test_name")
+                if isinstance(candidate_name, str) and candidate_name:
+                    rule_match = self.find_matching_rule(candidate_name)
+                    if rule_match:
+                        rule_def = rule_match[1].get("normal", {})
+                        min_norm = rule_def.get("min")
+                        max_norm = rule_def.get("max")
+
+            # Distance from normal bounds
+            def _dist(val: float, mn: Optional[float], mx: Optional[float]) -> float:
+                if mn is not None and val < mn:
+                    return round(mn - val, 3)
+                if mx is not None and val > mx:
+                    return round(val - mx, 3)
+                return 0.0
+
+            d_prev = _dist(prev_val, min_norm, max_norm)
+            d_curr = _dist(curr_val, min_norm, max_norm)
+
+            # Determine health impact
+            if min_norm is None and max_norm is None:
+                if abs(delta) < 0.001:
+                    health_impact = "stable"
+                else:
+                    health_impact = "changed"
+            else:
+                if d_curr == 0.0 and d_prev == 0.0:
+                    health_impact = "stable"
+                elif d_curr < d_prev:
+                    health_impact = "improved"
+                elif d_curr > d_prev:
+                    health_impact = "worsened"
+                else:
+                    health_impact = "stable"
+
+            canonical = curr.get("canonical_name") or curr.get("test_name")
+            unit = curr.get("unit") or matched_prev.get("unit") or ""
+            abs_delta = abs(delta)
+
+            # Multilingual friendly explanation per test
+            if health_impact == "improved":
+                if trend_dir == "down":
+                    en_msg = f"{canonical} is lower by {abs_delta:g} {unit} since last time, which is good progress."
+                    ml_msg = f"{canonical} കഴിഞ്ഞ തവണത്തേക്കാൾ {abs_delta:g} {unit} കുറഞ്ഞു, ഇത് നല്ല മാറ്റമാണ്."
+                    hi_msg = f"{canonical} पिछली बार से {abs_delta:g} {unit} कम हुआ है, यह एक अच्छा सुधार है।"
+                    ta_msg = f"{canonical} கடந்த முறையை விட {abs_delta:g} {unit} குறைந்துள்ளது, இது நல்ல முன்னேற்றம்."
+                else:
+                    en_msg = f"{canonical} increased by {abs_delta:g} {unit} into a healthier range."
+                    ml_msg = f"{canonical} കഴിഞ്ഞ തവണത്തേക്കാൾ {abs_delta:g} {unit} വർദ്ധിച്ച് കൂടുതൽ ആരോഗ്യകരമായ നിലയിലായി."
+                    hi_msg = f"{canonical} में {abs_delta:g} {unit} की बढ़ोतरी होकर सुरक्षित स्तर पर आ गया है।"
+                    ta_msg = f"{canonical} {abs_delta:g} {unit} அதிகரித்து பாதுகாப்பான நிலைக்கு வந்துள்ளது."
+            elif health_impact == "worsened":
+                if trend_dir == "up":
+                    en_msg = f"{canonical} increased by {abs_delta:g} {unit} compared to last time and needs review."
+                    ml_msg = f"{canonical} കഴിഞ്ഞ തവണത്തേക്കാൾ {abs_delta:g} {unit} കൂടിയിട്ടുണ്ട്, ഡോക്ടറെ കാണിക്കുന്നത് നന്നായിരിക്കും."
+                    hi_msg = f"{canonical} पिछली बार से {abs_delta:g} {unit} बढ़ गया है, डॉक्टर से परामर्श आवश्यक है।"
+                    ta_msg = f"{canonical} கடந்த முறையை விட {abs_delta:g} {unit} அதிகரித்துள்ளது, மருத்துவரிடம் காட்டுங்கள்."
+                else:
+                    en_msg = f"{canonical} dropped by {abs_delta:g} {unit} below optimal level since last time."
+                    ml_msg = f"{canonical} കഴിഞ്ഞ തവണത്തേക്കാൾ {abs_delta:g} {unit} കുറഞ്ഞിട്ടുണ്ട്, ശ്രദ്ധിക്കുക."
+                    hi_msg = f"{canonical} पिछली बार की तुलना में {abs_delta:g} {unit} कम हुआ है, ध्यान देना जरूरी है।"
+                    ta_msg = f"{canonical} கடந்த முறையை விட {abs_delta:g} {unit} குறைந்துள்ளது, கவனம் தேவை."
+            else:
+                en_msg = f"{canonical} is steady with little change ({delta:+g} {unit})."
+                ml_msg = f"{canonical} കാര്യമായ മാറ്റമില്ലാതെ സ്ഥിരമായി തുടരുന്നു."
+                hi_msg = f"{canonical} बिना किसी बड़े बदलाव के स्थिर बना हुआ है।"
+                ta_msg = f"{canonical} பெரிய மாற்றமின்றி சீராக உள்ளது."
+
+            comparisons.append({
+                "test_name": curr.get("test_name"),
+                "canonical_name": canonical,
+                "rule_key": rkey or curr.get("canonical_name"),
+                "previous_value": prev_val,
+                "current_value": curr_val,
+                "unit": unit,
+                "delta": delta,
+                "delta_formatted": f"{'+' if delta > 0 else ''}{delta:g}",
+                "percent_change": pct_change,
+                "trend_direction": trend_dir,
+                "health_impact": health_impact,
+                "previous_color": matched_prev.get("color", "green"),
+                "current_color": curr.get("color", "green"),
+                "normal_range": normal_data,
+                "message": {
+                    "en": en_msg,
+                    "ml": ml_msg,
+                    "hi": hi_msg,
+                    "ta": ta_msg
+                }
+            })
+
+        improved_count = sum(1 for c in comparisons if c["health_impact"] == "improved")
+        worsened_count = sum(1 for c in comparisons if c["health_impact"] == "worsened")
+        stable_count = sum(1 for c in comparisons if c["health_impact"] == "stable")
+
+        if improved_count > worsened_count:
+            overall_trajectory = "improving"
+        elif worsened_count > improved_count:
+            overall_trajectory = "worsening"
+        else:
+            overall_trajectory = "stable"
+
+        # Build composite spoken summary lines
+        top_improved = [c for c in comparisons if c["health_impact"] == "improved"]
+        top_worsened = [c for c in comparisons if c["health_impact"] == "worsened"]
+
+        spoken_en_parts = []
+        spoken_ml_parts = []
+        spoken_hi_parts = []
+        spoken_ta_parts = []
+
+        if top_improved:
+            item = top_improved[0]
+            spoken_en_parts.append(item["message"]["en"])
+            spoken_ml_parts.append(item["message"]["ml"])
+            spoken_hi_parts.append(item["message"]["hi"])
+            spoken_ta_parts.append(item["message"]["ta"])
+
+        if top_worsened:
+            item = top_worsened[0]
+            spoken_en_parts.append(item["message"]["en"])
+            spoken_ml_parts.append(item["message"]["ml"])
+            spoken_hi_parts.append(item["message"]["hi"])
+            spoken_ta_parts.append(item["message"]["ta"])
+
+        if not top_improved and not top_worsened and comparisons:
+            spoken_en_parts.append("Your test numbers are steady compared to your previous report.")
+            spoken_ml_parts.append("കഴിഞ്ഞ റിപ്പോർട്ടുമായി താരതമ്യം ചെയ്യുമ്പോൾ പരിശോധനാ ഫലങ്ങൾ സ്ഥിരതയുള്ളതാണ്.")
+            spoken_hi_parts.append("आपकी पिछली रिपोर्ट की तुलना में जांच के परिणाम स्थिर बने हुए हैं।")
+            spoken_ta_parts.append("உங்கள் முந்தைய அறிக்கையுடன் ஒப்பிடுகையில் பரிசோதனை முடிவுகள் சீராக உள்ளன.")
+
+        return {
+            "has_comparison": len(comparisons) > 0,
+            "total_compared": len(comparisons),
+            "improved_count": improved_count,
+            "worsened_count": worsened_count,
+            "stable_count": stable_count,
+            "overall_trajectory": overall_trajectory,
+            "comparisons": comparisons,
+            "spoken_summary": {
+                "en": " ".join(spoken_en_parts),
+                "ml": " ".join(spoken_ml_parts),
+                "hi": " ".join(spoken_hi_parts),
+                "ta": " ".join(spoken_ta_parts)
+            }
         }

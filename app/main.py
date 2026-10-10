@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 # pyrefly: ignore [missing-import]
 from fastapi import FastAPI, UploadFile, File, Form, Request
@@ -10,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 # pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Optional
+from typing import Optional, List, Tuple
 
 from app.config import settings
 from app.agents.pipeline import ReportSakhiPipeline
@@ -69,27 +70,52 @@ async def index(request: Request):
 
 @app.post("/api/scan")
 async def scan_report(
+    files: List[UploadFile] = File(default=[]),
     file: Optional[UploadFile] = File(None),
     language: str = Form("en"),
-    simple_mode: bool = Form(False)
+    simple_mode: bool = Form(False),
+    previous_report: Optional[str] = Form(None),
+    demo_type: Optional[str] = Form(None)
 ):
     """
-    Executes the 4-agent pipeline on the submitted report photo.
+    Executes the 4-agent pipeline on submitted report PDF(s) or photo(s),
+    optionally computing longitudinal trends if previous_report is passed.
     """
     try:
-        image_bytes = b""
-        mime_type = "image/jpeg"
-        if file:
-            image_bytes = await file.read()
-            mime_type = file.content_type or "image/jpeg"
-        else:
-            # Fallback to trigger sample demo flow if empty
-            image_bytes = b"DEMO_REPORT_PAYLOAD"
+        documents: List[Tuple[bytes, str]] = []
+
+        all_uploads: List[UploadFile] = list(files) if files else []
+        if file and file not in all_uploads:
+            all_uploads.insert(0, file)
+
+        for up in all_uploads:
+            content = await up.read()
+            if content and len(content) > 0:
+                ct = up.content_type or ""
+                fn = up.filename or ""
+                if fn.lower().endswith(".pdf") or ct.lower() == "application/pdf":
+                    ct = "application/pdf"
+                documents.append((content, ct))
+
+        if not documents:
+            if demo_type == "followup":
+                documents.append((b"DEMO_FOLLOWUP_PAYLOAD", "image/jpeg"))
+            elif demo_type == "pdf":
+                documents.append((b"DEMO_PDF_REPORT_PAYLOAD", "application/pdf"))
+            else:
+                documents.append((b"DEMO_REPORT_PAYLOAD", "image/jpeg"))
+
+        parsed_prev = None
+        if previous_report:
+            try:
+                parsed_prev = json.loads(previous_report)
+            except Exception:
+                pass
 
         result = await pipeline.run(
-            image_bytes=image_bytes,
-            mime_type=mime_type,
-            language=language
+            document_or_documents=documents,
+            language=language,
+            previous_report=parsed_prev
         )
         result["simple_mode"] = simple_mode
         return JSONResponse(content=result)

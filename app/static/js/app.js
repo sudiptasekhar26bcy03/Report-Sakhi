@@ -14,10 +14,10 @@ const I18N = {
         simpleModeSub: "വലിയ അക്ഷരങ്ങളും ശബ്ദവും",
         langSectionTitle: "ഭാഷ തിരഞ്ഞെടുക്കുക",
         langSectionHint: "നിങ്ങളുടെ മാതൃഭാഷയിൽ ഫലങ്ങൾ കേൾക്കൂ",
-        scanHeading: "ലാബ് റിപ്പോർട്ട് സ്കാൻ ചെയ്യുക",
-        scanSubheading: "രക്തം, പഞ്ചസാര അല്ലെങ്കിൽ തൈറോയ്ഡ് റിപ്പോർട്ടിന്റെ വ്യക്തമായ ഫോട്ടോ എടുക്കൂ",
-        scanBtnLabel: "റിപ്പോർട്ട് സ്കാൻ ചെയ്യുക",
-        scanBtnSub: "ക്യാമറ അല്ലെങ്കിൽ ഗാലറി",
+        scanHeading: "ലാബ് റിപ്പോർട്ട് സമർപ്പിക്കുക",
+        scanSubheading: "മൾട്ടി-പേജ് PDF അല്ലെങ്കിൽ വ്യക്തമായ ഫോട്ടോകൾ നൽകാം",
+        scanBtnLabel: "ലാബ് റിപ്പോർട്ട് സമർപ്പിക്കുക",
+        scanBtnSub: "PDF അല്ലെങ്കിൽ ഫോട്ടോകൾ (മൾട്ടി-പേജ്)",
         demoSampleText: "സാമ്പിൾ റിപ്പോർട്ട് കാണുക (CBC + Sugar)",
         hl1: "സുരക്ഷിത റഫറൻസ് പരിധികൾ",
         hl2: "ശബ്ദ വിശദീകരണം",
@@ -45,7 +45,13 @@ const I18N = {
         btnRetakeLabel: "വീണ്ടും ഫോട്ടോ എടുക്കുക",
         btnCancelRetakeLabel: "വേണ്ട",
         askPlaceholder: "ഉദാ: എന്റെ ഷുഗർ കൂടുതലാണോ?",
-        sendBtnText: "ചോദിക്കൂ"
+        sendBtnText: "ചോദിക്കൂ",
+        trendTitle: "ആരോഗ്യ പുരോഗതിയും മാറ്റങ്ങളും",
+        trendSubtitle: "കഴിഞ്ഞ പരിശോധനയുമായുള്ള താരതമ്യം",
+        historyModalTitle: "റിപ്പോർട്ട് ചരിത്രം",
+        clearHistoryLabel: "ചരിത്രം മായ്ക്കുക",
+        demoFollowupText: "തുടർ പരിശോധന കാണുക (മാറ്റങ്ങൾ നിരീക്ഷിക്കാം)",
+        demoPdfText: "മൾട്ടി-പേജ് PDF റിപ്പോർട്ട് (2 പേജുകൾ)"
     },
     hi: {
         brandTagline: "आपकी सेहत की सच्ची सखी",
@@ -53,10 +59,10 @@ const I18N = {
         simpleModeSub: "बड़े अक्षर और आवाज़",
         langSectionTitle: "अपनी भाषा चुनें",
         langSectionHint: "अपनी भाषा में रिपोर्ट की व्याख्या सुनें",
-        scanHeading: "लैब रिपोर्ट स्कैन करें",
-        scanSubheading: "ब्लड टेस्ट, शुगर या थायराइड रिपोर्ट का साफ़ फोटो लें",
-        scanBtnLabel: "रिपोर्ट स्कैन करें",
-        scanBtnSub: "कैमरा या गैलरी",
+        scanHeading: "लैब रिपोर्ट अपलोड या स्कैन करें",
+        scanSubheading: "मल्टी-पेज PDF या जांच रिपोर्ट के साफ़ फ़ोटो दें",
+        scanBtnLabel: "लैब रिपोर्ट अपलोड करें",
+        scanBtnSub: "PDF या फ़ोटो (मल्टी-पेज समर्थित)",
         demoSampleText: "सैंपल रिपोर्ट देखें (CBC + Sugar)",
         hl1: "सुरक्षित मेडिकल सीमाएं",
         hl2: "आवाज़ में जानकारी",
@@ -84,7 +90,13 @@ const I18N = {
         btnRetakeLabel: "दोबारा फ़ोटो लें",
         btnCancelRetakeLabel: "रद्द करें",
         askPlaceholder: "जैसे: क्या मेरी शुगर ज्यादा है?",
-        sendBtnText: "पूछें"
+        sendBtnText: "पूछें",
+        trendTitle: "प्रगति और बदलाव ट्रैकर",
+        trendSubtitle: "पिछली जांच रिपोर्ट से तुलना",
+        historyModalTitle: "रिपोर्ट इतिहास",
+        clearHistoryLabel: "इतिहास हटाएं",
+        demoFollowupText: "फॉलो-अप रिपोर्ट देखें (ट्रेंड ट्रैकर)",
+        demoPdfText: "मल्टी-पेज PDF रिपोर्ट देखें (2 पेज)"
     },
     ta: {
         brandTagline: "உங்கள் மருத்துவத் தோழி",
@@ -92,10 +104,10 @@ const I18N = {
         simpleModeSub: "பெரிய எழுத்துகள் & குரல்",
         langSectionTitle: "மொழியைத் தேர்ந்தெடுக்கவும்",
         langSectionHint: "உங்கள் சொந்த மொழியில் விளக்கத்தைக் கேளுங்கள்",
-        scanHeading: "ஆய்வக அறிக்கையை ஸ்கேன் செய்க",
-        scanSubheading: "இரத்தப் பரிசோதனை அல்லது சர்க்கரை அறிக்கையை தெளிவாகப் படம் எடுக்கவும்",
-        scanBtnLabel: "ஸ்கேன் செய்க",
-        scanBtnSub: "கேமரா அல்லது கேலரி",
+        scanHeading: "ஆய்வக அறிக்கையைப் பதிவேற்றவும்",
+        scanSubheading: "பல பக்க PDF அல்லது தெளிவான புகைப்படங்களை வழங்கவும்",
+        scanBtnLabel: "அறிக்கையைப் பதிவேற்றவும்",
+        scanBtnSub: "PDF அல்லது புகைப்படங்கள் (பல பக்கங்கள்)",
         demoSampleText: "மாதிரி அறிக்கை காண்க (CBC + Sugar)",
         hl1: "பாதுகாப்பான மருத்துவ வரம்புகள்",
         hl2: "குரல் விளக்கம்",
@@ -123,7 +135,13 @@ const I18N = {
         btnRetakeLabel: "மீண்டும் படம் எடுக்கவும்",
         btnCancelRetakeLabel: "மூடுக",
         askPlaceholder: "எ.கா: சர்க்கரை அளவு அதிகமா?",
-        sendBtnText: "கேட்க"
+        sendBtnText: "கேட்க",
+        trendTitle: "முன்னேற்றப் போக்கு கண்காணிப்பு",
+        trendSubtitle: "முந்தைய அறிக்கையுடன் ஒப்பீடு",
+        historyModalTitle: "அறிக்கை வரலாறு",
+        clearHistoryLabel: "வரலாற்றை அழி",
+        demoFollowupText: "அடுத்த பரிசோதனை காண்க (போக்கை அறிய)",
+        demoPdfText: "பல பக்க PDF அறிக்கை காண்க (2 பக்கங்கள்)"
     },
     te: {
         brandTagline: "మీ ఆరోగ్య స్నేహితురాలు",
@@ -482,10 +500,10 @@ const I18N = {
         simpleModeSub: "Large icons & audio",
         langSectionTitle: "Choose Your Language",
         langSectionHint: "Tap to hear explanations in your mother tongue",
-        scanHeading: "Scan Your Lab Report",
-        scanSubheading: "Take a clear photo of blood, sugar, or urine test results",
-        scanBtnLabel: "SCAN REPORT",
-        scanBtnSub: "Camera or Gallery",
+        scanHeading: "Upload or Scan Lab Report",
+        scanSubheading: "Upload multi-page PDF document or take clear photos",
+        scanBtnLabel: "UPLOAD LAB REPORT",
+        scanBtnSub: "PDF or Photos (Multi-page supported)",
         demoSampleText: "Or Try Sample Report (CBC + Sugar)",
         hl1: "Safe Medical Ranges",
         hl2: "Spoken Voice Advice",
@@ -513,7 +531,13 @@ const I18N = {
         btnRetakeLabel: "Retake Photo",
         btnCancelRetakeLabel: "Close",
         askPlaceholder: "e.g. Is my sugar high?",
-        sendBtnText: "Ask"
+        sendBtnText: "Ask",
+        trendTitle: "Progress & Trend Tracker",
+        trendSubtitle: "Comparing consecutive test reports over time",
+        historyModalTitle: "Report History",
+        clearHistoryLabel: "Clear History",
+        demoFollowupText: "Simulate Follow-up Report (See Trend Tracker)",
+        demoPdfText: "Or Try Multi-Page PDF Report (2 Pages)"
     }
 };
 
@@ -533,11 +557,13 @@ class ReportSakhiApp {
         this.audioElement = null;
         this.mediaRecorder = null;
         this.audioChunks = [];
+        this.trendChartInstance = null;
 
         this.initElements();
         this.bindEvents();
         this.applyLanguage(this.currentLang);
         this.applySimpleMode(this.simpleMode);
+        this.updateHistoryBadge();
     }
 
     initElements() {
@@ -552,7 +578,16 @@ class ReportSakhiApp {
         this.fileInput = document.getElementById("reportFileInput");
         this.btnScanMain = document.getElementById("btnScanMain");
         this.btnDemoSample = document.getElementById("btnDemoSample");
+        this.btnDemoFollowup = document.getElementById("btnDemoFollowup");
         this.btnBackHome = document.getElementById("btnBackHome");
+
+        // History Elements
+        this.btnHistoryToggle = document.getElementById("btnHistoryToggle");
+        this.historyCountBadge = document.getElementById("historyCountBadge");
+        this.historyModal = document.getElementById("historyModal");
+        this.btnCloseHistory = document.getElementById("btnCloseHistory");
+        this.historyList = document.getElementById("historyList");
+        this.btnClearHistory = document.getElementById("btnClearHistory");
 
         // Audio Listen Buttons
         this.btnListenAudio = document.getElementById("btnListenAudio");
@@ -560,6 +595,19 @@ class ReportSakhiApp {
         this.btnAttachedListen = document.getElementById("btnAttachedListen");
         this.attachedListenIcon = document.getElementById("attachedListenIcon");
         this.attachedAudioWaves = document.getElementById("attachedAudioWaves");
+
+        // Trend Tracker Elements
+        this.trendTrackerCard = document.getElementById("trendTrackerCard");
+        this.trendTitle = document.getElementById("trendTitle");
+        this.trendSubtitle = document.getElementById("trendSubtitle");
+        this.trendTrajectoryBadge = document.getElementById("trendTrajectoryBadge");
+        this.trendMetricSelect = document.getElementById("trendMetricSelect");
+        this.trendDeltaPill = document.getElementById("trendDeltaPill");
+        this.trendDeltaIcon = document.getElementById("trendDeltaIcon");
+        this.trendDeltaText = document.getElementById("trendDeltaText");
+        this.trendDeltaStatus = document.getElementById("trendDeltaStatus");
+        this.trendChartCanvas = document.getElementById("trendChartCanvas");
+        this.trendInsightText = document.getElementById("trendInsightText");
 
         // Results Content
         this.testsGrid = document.getElementById("testsGrid");
@@ -616,22 +664,45 @@ class ReportSakhiApp {
             this.setSimpleMode(e.target.checked);
         });
 
+        // History Modal Triggers
+        if (this.btnHistoryToggle) {
+            this.btnHistoryToggle.addEventListener("click", () => {
+                this.openHistoryModal();
+            });
+        }
+        if (this.btnCloseHistory) {
+            this.btnCloseHistory.addEventListener("click", () => {
+                this.closeHistoryModal();
+            });
+        }
+        if (this.btnClearHistory) {
+            this.btnClearHistory.addEventListener("click", () => {
+                this.clearHistory();
+            });
+        }
+
         // Scan Buttons
         this.btnScanMain.addEventListener("click", () => {
             this.fileInput.click();
         });
 
         this.fileInput.addEventListener("change", (e) => {
-            if (e.target.files && e.target.files[0]) {
-                const file = e.target.files[0];
+            if (e.target.files && e.target.files.length > 0) {
+                const files = Array.from(e.target.files);
                 this.fileInput.value = "";
-                this.processScan(file);
+                this.processScan(files);
             }
         });
 
         this.btnDemoSample.addEventListener("click", () => {
-            this.processScan(null); // Runs demo payload
+            this.processScan(null, "baseline"); // Runs demo payload
         });
+
+        if (this.btnDemoFollowup) {
+            this.btnDemoFollowup.addEventListener("click", () => {
+                this.processScan(null, "followup"); // Runs follow-up payload
+            });
+        }
 
         // Navigation
         this.btnBackHome.addEventListener("click", () => {
@@ -699,6 +770,16 @@ class ReportSakhiApp {
     getTestIcon(test) {
         const key = (test.rule_key || "").toLowerCase();
         const name = (test.canonical_name || test.test_name || "").toLowerCase();
+        if (key === "rbc" || name.includes("rbc") || name.includes("red blood cell")) return "🔴";
+        if (key === "mch" || name.includes("mch")) return "🧬";
+        if (key === "mchc" || name.includes("mchc")) return "🧬";
+        if (key === "mcv" || name.includes("mcv")) return "🔬";
+        if (key === "hct" || name.includes("hematocrit") || name.includes("pcv")) return "🧪";
+        if (key.includes("neutrophil") || name.includes("neutrophil")) return "🛡️";
+        if (key.includes("lymphocyte") || name.includes("lymphocyte")) return "🦠";
+        if (key.includes("monocyte") || name.includes("monocyte")) return "🧫";
+        if (key.includes("eosinophil") || name.includes("eosinophil")) return "🌸";
+        if (key.includes("basophil") || name.includes("basophil")) return "🫐";
         if (key.includes("hemoglobin") || name.includes("hemoglobin") || name.includes("haemoglobin") || name.includes("hb")) return "🩸";
         if (key.includes("fasting") || name.includes("fasting") || name.includes("fbs")) return "🍬";
         if (key.includes("post_prandial") || name.includes("ppbs") || name.includes("post prandial") || name.includes("pp")) return "🍚";
@@ -764,17 +845,317 @@ class ReportSakhiApp {
         }
     }
 
-    async processScan(file) {
+    // -------------------------------------------------------------
+    // History Management (localStorage)
+    // -------------------------------------------------------------
+    getHistory() {
+        try {
+            const raw = localStorage.getItem("reportSakhi_history");
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    saveToHistory(scanResult) {
+        if (!scanResult || !scanResult.success) return;
+        const checker = scanResult.checker || {};
+        const explainer = scanResult.explainer || {};
+        const history = this.getHistory();
+        const now = new Date();
+        const entry = {
+            id: "rep_" + Date.now(),
+            timestamp: Date.now(),
+            dateStr: now.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            items: checker.items || [],
+            overall_status: checker.overall_status || "green",
+            headline: explainer.headline || "Lab Report",
+            summary_text: explainer.summary_text || ""
+        };
+        history.push(entry);
+        if (history.length > 25) history.shift();
+        localStorage.setItem("reportSakhi_history", JSON.stringify(history));
+        this.updateHistoryBadge();
+    }
+
+    clearHistory() {
+        localStorage.removeItem("reportSakhi_history");
+        this.updateHistoryBadge();
+        this.renderHistoryList();
+        if (this.trendTrackerCard) {
+            this.trendTrackerCard.style.display = "none";
+        }
+        if (this.trendChartInstance) {
+            this.trendChartInstance.destroy();
+            this.trendChartInstance = null;
+        }
+    }
+
+    updateHistoryBadge() {
+        const count = this.getHistory().length;
+        if (this.historyCountBadge) {
+            this.historyCountBadge.innerText = count;
+            this.historyCountBadge.style.display = count > 0 ? "inline-flex" : "none";
+        }
+    }
+
+    openHistoryModal() {
+        if (this.historyModal) {
+            this.renderHistoryList();
+            this.historyModal.style.display = "flex";
+        }
+    }
+
+    closeHistoryModal() {
+        if (this.historyModal) {
+            this.historyModal.style.display = "none";
+        }
+    }
+
+    renderHistoryList() {
+        if (!this.historyList) return;
+        const history = this.getHistory();
+        if (history.length === 0) {
+            this.historyList.innerHTML = `<p class="history-empty">No reports saved yet. Scan a report to begin tracking trends.</p>`;
+            return;
+        }
+
+        this.historyList.innerHTML = "";
+        [...history].reverse().forEach((rep) => {
+            const item = document.createElement("div");
+            item.className = `history-item status-${rep.overall_status || 'green'}`;
+            const statusLabel = rep.overall_status === "red" ? "URGENT" : (rep.overall_status === "yellow" ? "WATCH" : "NORMAL");
+            item.innerHTML = `
+                <div class="history-item-top">
+                    <span class="history-item-date">📅 ${rep.dateStr}</span>
+                    <span class="history-status-tag tag-${rep.overall_status || 'green'}">${statusLabel}</span>
+                </div>
+                <h4 class="history-item-headline">${rep.headline || 'Lab Report'}</h4>
+                <div class="history-item-meta">
+                    <span>${(rep.items || []).length} Tests Checked</span>
+                </div>
+            `;
+            this.historyList.appendChild(item);
+        });
+    }
+
+    // -------------------------------------------------------------
+    // Longitudinal Trend Tracker (Chart.js Integration)
+    // -------------------------------------------------------------
+    renderLongitudinalTracker(data) {
+        const comparison = data.comparison;
+        if (!comparison || !comparison.has_comparison || !comparison.comparisons || comparison.comparisons.length === 0) {
+            if (this.trendTrackerCard) this.trendTrackerCard.style.display = "none";
+            return;
+        }
+
+        if (this.trendTrackerCard) this.trendTrackerCard.style.display = "block";
+
+        // Set overall trajectory badge
+        const traj = comparison.overall_trajectory || "stable";
+        const trajLabels = {
+            improving: { en: "Improving", ml: "മെച്ചപ്പെടുന്നു", hi: "सुधार", ta: "மேம்படுகிறது" },
+            worsening: { en: "Needs Attention", ml: "ശ്രദ്ധിക്കുക", hi: "ध्यान दें", ta: "கவனம் தேவை" },
+            stable: { en: "Stable", ml: "സ്ഥിരത", hi: "स्थिर", ta: "சீராக உள்ளது" }
+        };
+        if (this.trendTrajectoryBadge) {
+            this.trendTrajectoryBadge.className = `trend-trajectory-badge trajectory-${traj}`;
+            this.trendTrajectoryBadge.innerText = (trajLabels[traj] && trajLabels[traj][this.currentLang]) || traj.toUpperCase();
+        }
+
+        // Populate metric dropdown
+        if (this.trendMetricSelect) {
+            this.trendMetricSelect.innerHTML = "";
+            comparison.comparisons.forEach((item, idx) => {
+                const opt = document.createElement("option");
+                opt.value = idx;
+                const arrow = item.trend_direction === "down" ? "📉" : (item.trend_direction === "up" ? "📈" : "➡️");
+                opt.innerText = `${arrow} ${item.canonical_name} (${item.delta_formatted} ${item.unit})`;
+                this.trendMetricSelect.appendChild(opt);
+            });
+
+            this.trendMetricSelect.onchange = () => {
+                const selectedIdx = parseInt(this.trendMetricSelect.value, 10);
+                this.renderSingleMetricGraph(comparison.comparisons[selectedIdx]);
+            };
+        }
+
+        // Render first metric graph by default
+        this.renderSingleMetricGraph(comparison.comparisons[0]);
+    }
+
+    renderSingleMetricGraph(item) {
+        if (!item) return;
+
+        // 1. Delta Pill
+        if (this.trendDeltaPill) {
+            this.trendDeltaPill.className = `trend-delta-pill delta-${item.health_impact}`;
+        }
+        if (this.trendDeltaIcon) {
+            this.trendDeltaIcon.innerText = item.trend_direction === "down" ? "📉" : (item.trend_direction === "up" ? "📈" : "➡️");
+        }
+        if (this.trendDeltaText) {
+            this.trendDeltaText.innerText = `${item.delta_formatted} ${item.unit}`;
+        }
+        if (this.trendDeltaStatus) {
+            const impactLabels = {
+                improved: { en: "(Improved)", ml: "(മെച്ചപ്പെട്ടു)", hi: "(सुधार हुआ)", ta: "(மேம்பட்டது)" },
+                worsened: { en: "(Needs Attention)", ml: "(ശ്രദ്ധിക്കുക)", hi: "(ध्यान दें)", ta: "(கவனம் தேவை)" },
+                stable: { en: "(Steady)", ml: "(മാറ്റമില്ല)", hi: "(स्थिर)", ta: "(சீராக உள்ளது)" }
+            };
+            const impactMap = impactLabels[item.health_impact] || impactLabels.stable;
+            this.trendDeltaStatus.innerText = (impactMap && impactMap[this.currentLang]) || `(${item.health_impact})`;
+        }
+
+        // 2. Insight Text
+        if (this.trendInsightText) {
+            const msg = (item.message && item.message[this.currentLang]) || (item.message && item.message.en) || "";
+            this.trendInsightText.innerText = msg;
+        }
+
+        // 3. Chart.js rendering
+        if (!this.trendChartCanvas || typeof Chart === "undefined") return;
+
+        const ctx = this.trendChartCanvas.getContext("2d");
+        if (this.trendChartInstance) {
+            this.trendChartInstance.destroy();
+            this.trendChartInstance = null;
+        }
+
+        // Extract historical values for this metric from localStorage
+        const history = this.getHistory();
+        const dataPoints = [];
+        const labels = [];
+
+        history.forEach(h => {
+            const found = (h.items || []).find(t =>
+                (t.rule_key && t.rule_key === item.rule_key) ||
+                (t.canonical_name && t.canonical_name.toLowerCase() === item.canonical_name.toLowerCase()) ||
+                (t.test_name && t.test_name.toLowerCase() === item.test_name.toLowerCase())
+            );
+            if (found && typeof found.value === "number") {
+                labels.push(h.dateStr || "Past Test");
+                dataPoints.push(found.value);
+            }
+        });
+
+        // Ensure at least previous & current points exist
+        if (dataPoints.length < 2) {
+            labels.length = 0;
+            dataPoints.length = 0;
+            labels.push(this.currentLang === "ml" ? "മുൻ റിപ്പോർട്ട്" : (this.currentLang === "hi" ? "पिछली जांच" : "Previous Test"));
+            dataPoints.push(item.previous_value);
+            labels.push(this.currentLang === "ml" ? "ഇന്നത്തെ റിപ്പോർട്ട്" : (this.currentLang === "hi" ? "आज की जांच" : "Current Test"));
+            dataPoints.push(item.current_value);
+        }
+
+        const isImproved = item.health_impact === "improved";
+        const isWorsened = item.health_impact === "worsened";
+        const primaryColor = isImproved ? "#16a34a" : (isWorsened ? "#dc2626" : "#2563eb");
+        const bgColor = isImproved ? "rgba(22, 163, 74, 0.12)" : (isWorsened ? "rgba(220, 38, 38, 0.12)" : "rgba(37, 99, 235, 0.12)");
+
+        this.trendChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: `${item.canonical_name} (${item.unit})`,
+                    data: dataPoints,
+                    borderColor: primaryColor,
+                    backgroundColor: bgColor,
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 3,
+                    pointBackgroundColor: primaryColor,
+                    pointBorderColor: "#ffffff",
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 9
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#1e293b',
+                            font: { family: "'Plus Jakarta Sans', sans-serif", weight: '600', size: 13 },
+                            boxWidth: 12
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleFont: { family: "'Plus Jakarta Sans', sans-serif", size: 12 },
+                        bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 12, weight: 'bold' },
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: (context) => `Value: ${context.parsed.y} ${item.unit}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: "rgba(0, 0, 0, 0.05)" },
+                        ticks: {
+                            font: { family: "'Plus Jakarta Sans', sans-serif", size: 11 },
+                            color: "#64748b"
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { family: "'Plus Jakarta Sans', sans-serif", size: 11, weight: '600' },
+                            color: "#475569"
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    async processScan(files, demoType = null) {
         this.mainHomeView.style.display = "none";
         this.loadingOverlay.style.display = "flex";
         this.resultsContainer.style.display = "none";
 
+        const fileList = files ? (Array.isArray(files) ? files : (files instanceof FileList ? Array.from(files) : [files])) : [];
+        const isPdf = (fileList.length > 0 && (
+            (fileList[0].name && fileList[0].name.toLowerCase().endsWith(".pdf")) ||
+            (fileList[0].type && fileList[0].type.includes("pdf"))
+        )) || demoType === "pdf";
+
+        if (isPdf && this.loadingStep) {
+            this.loadingStep.textContent = "Analyzing multi-page PDF document...";
+        } else if (fileList.length > 1 && this.loadingStep) {
+            this.loadingStep.textContent = `Analyzing ${fileList.length} report pages...`;
+        } else if (this.loadingStep) {
+            this.loadingStep.textContent = "Reader Agent extracting values from document...";
+        }
+
         const formData = new FormData();
-        if (file) {
-            formData.append("file", file);
+        if (fileList.length > 0) {
+            for (const f of fileList) {
+                formData.append("files", f);
+            }
+            formData.append("file", fileList[0]);
+        }
+        if (demoType) {
+            formData.append("demo_type", demoType);
         }
         formData.append("language", this.currentLang);
         formData.append("simple_mode", this.simpleMode);
+
+        // Include latest previous report from localStorage history if present
+        const history = this.getHistory();
+        if (history.length > 0) {
+            const previousReport = history[history.length - 1];
+            formData.append("previous_report", JSON.stringify(previousReport));
+        }
 
         try {
             const response = await fetch("/api/scan", {
@@ -789,11 +1170,14 @@ class ReportSakhiApp {
                 return;
             }
 
+            // Save report to localStorage history
+            this.saveToHistory(data);
+
             this.renderResults(data);
         } catch (error) {
             console.error("Scan error:", error);
             this.loadingOverlay.style.display = "none";
-            this.showRetakeModal("Could not read report clearly. Please retake a well-lit photo of the lab report.");
+            this.showRetakeModal("Could not read document clearly. Please upload a clear PDF or well-lit photos.");
         }
     }
 
@@ -826,6 +1210,7 @@ class ReportSakhiApp {
         const checker = data.checker || {};
         const explainer = data.explainer || {};
         const voice = data.voice || {};
+        const comparison = data.comparison || {};
         const overallStatus = checker.overall_status || "green";
 
         // Store context for Explainer Agent Q&A
@@ -850,9 +1235,14 @@ class ReportSakhiApp {
         this.safetyLineText.innerText = explainer.safety_line || I18N[this.currentLang]?.safetyLineText || "This explains your report. It is not a diagnosis. Please consult a doctor.";
         this.currentSpeechScript = explainer.full_speech_script || explainer.summary_text || "";
 
+        // Render Longitudinal Trend Tracker (Chart.js + Metric Picker)
+        this.renderLongitudinalTracker(data);
+
         // Tests Grid
         this.testsGrid.innerHTML = "";
         const items = checker.items || [];
+        const compList = comparison.comparisons || [];
+
         items.forEach((test, idx) => {
             const card = document.createElement("div");
             const color = test.color || "green";
@@ -864,6 +1254,27 @@ class ReportSakhiApp {
             const statusIcon = this.getStatusIcon(color);
             const statusLabel = test.status_label || (color === "red" ? "URGENT" : (color === "yellow" ? "WATCH" : "NORMAL"));
 
+            // Match test comparison if available
+            const matchedComp = compList.find(c => 
+                (c.rule_key && c.rule_key === test.rule_key) ||
+                (c.canonical_name && c.canonical_name.toLowerCase() === (test.canonical_name || test.test_name).toLowerCase()) ||
+                (c.test_name && c.test_name.toLowerCase() === test.test_name.toLowerCase())
+            );
+
+            let deltaBadgeHtml = "";
+            if (matchedComp) {
+                const impactClass = matchedComp.health_impact === "improved" ? "delta-improved" : (matchedComp.health_impact === "worsened" ? "delta-worsened" : "delta-stable");
+                const arrow = matchedComp.trend_direction === "down" ? "📉" : (matchedComp.trend_direction === "up" ? "📈" : "➡️");
+                const impactTag = matchedComp.health_impact === "improved" ? "Improved" : (matchedComp.health_impact === "worsened" ? "Attention" : "Steady");
+                deltaBadgeHtml = `
+                    <div class="test-delta-badge ${impactClass}">
+                        <span>${arrow}</span>
+                        <span>${matchedComp.delta_formatted} ${matchedComp.unit}</span>
+                        <span class="impact-text">(${impactTag})</span>
+                    </div>
+                `;
+            }
+
             card.innerHTML = `
                 <div class="test-card-main">
                     <div class="test-icon-badge" aria-hidden="true">${testIcon}</div>
@@ -873,6 +1284,7 @@ class ReportSakhiApp {
                             <span class="status-symbol" aria-hidden="true">${statusIcon}</span>
                             <span class="status-name">${statusLabel}</span>
                         </div>
+                        ${deltaBadgeHtml}
                     </div>
                     <div class="test-val-container">
                         <span class="test-val-badge">${test.value}</span>
@@ -892,7 +1304,7 @@ class ReportSakhiApp {
             if (miniBtn) {
                 miniBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    this.speakTestCard(test, miniBtn);
+                    this.speakTestCard(test, miniBtn, matchedComp);
                 });
             }
 
@@ -1029,7 +1441,7 @@ class ReportSakhiApp {
         window.speechSynthesis.speak(utterance);
     }
 
-    speakTestCard(test, btnElement) {
+    speakTestCard(test, btnElement, comp = null) {
         const name = test.canonical_name || test.test_name;
         const val = `${test.value} ${test.unit}`;
         const status = test.status_label || test.color;
@@ -1043,6 +1455,13 @@ class ReportSakhiApp {
             script = `${name}: அளவு ${val}. நிலை: ${status}.`;
         } else {
             script = `${name} is ${val}. Status is ${status}.`;
+        }
+
+        if (comp && comp.message) {
+            const compSentence = comp.message[this.currentLang] || comp.message.en;
+            if (compSentence) {
+                script += ` ${compSentence}`;
+            }
         }
 
         if (btnElement) {
