@@ -2341,3 +2341,196 @@ body.simple-mode .btn-hospital-action {
 .btn-confirm-scan:hover {
     background: var(--primary-dark);
 }
+
+/* Tiered Map UI Redesign */
+#specialistDetectedContainer {
+    margin-bottom: 20px;
+}
+
+.specialist-badge {
+    background: linear-gradient(135deg, var(--primary-light) 0%, #ffffff 100%);
+    color: var(--primary-dark) !important;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    margin: 15px 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: left;
+    border: 1px solid rgba(13, 71, 161, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow-soft);
+}
+
+.tier-container {
+    margin-bottom: 24px;
+}
+
+.tier-title {
+    font-size: 1.05rem;
+    color: var(--text-main) !important;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid rgba(0,0,0,0.05);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.facility-card {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: var(--text-main) !important;
+}
+
+.facility-card:active {
+    transform: scale(0.98);
+}
+
+.facility-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.facility-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    padding-right: 10px;
+}
+
+.facility-info strong {
+    font-size: 1.05rem;
+    color: var(--text-main) !important;
+    line-height: 1.3;
+}
+
+.facility-type {
+    font-size: 0.8rem;
+    color: var(--primary) !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.facility-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted) !important;
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+.facility-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
+}
+
+.facility-distance {
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted) !important;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.facility-phone {
+    background: #e0f2fe;
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #0284c7 !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+    border: 1px solid #bae6fd;
+}
+
+.facility-phone:hover {
+    background: #bae6fd;
+    transform: translateY(-1px);
+}
+
+.btn-facility-map {
+    background: var(--primary);
+    color: white !important;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.9rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s, transform 0.2s;
+    box-shadow: 0 4px 12px rgba(13, 71, 161, 0.2);
+}
+
+.btn-facility-map:active {
+    transform: scale(0.95);
+    background: var(--primary-dark);
+}
+
+/* Needs Human Review Section */
+.panel-needs-review {
+    border: 2px dashed #94a3b8;
+    background: #f8fafc;
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.panel-header-review {
+    color: #475569;
+}
+
+.badge-review {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.needs-review-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #f1f5f9;
+    border-left: 4px solid #64748b;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: #334155;
+    margin-bottom: 14px;
+}
+
+.card-unrecognized {
+    border-color: #cbd5e1 !important;
+    background: #ffffff !important;
+    opacity: 0.95;
+}
+
+.pill-unrecognized {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #cbd5e1 !important;
+}

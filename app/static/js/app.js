@@ -415,9 +415,11 @@ class ReportSakhiApp {
             }
         });
 
-        this.btnDemoSample.addEventListener("click", () => {
-            this.processScan(null, "baseline"); // Runs demo payload
-        });
+        if (this.btnDemoSample) {
+            this.btnDemoSample.addEventListener("click", () => {
+                this.processScan(null, "baseline"); // Runs demo payload
+            });
+        }
 
         if (this.btnDemoFollowup) {
             this.btnDemoFollowup.addEventListener("click", () => {
@@ -1160,11 +1162,69 @@ class ReportSakhiApp {
             });
         }
 
+        // Unrecognized / Needs Human Review section
+        const unrecList = checker.needs_human_review || checker.unrecognized_tests || [];
+        if (unrecList.length > 0) {
+            const reviewSec = document.createElement("section");
+            reviewSec.className = "panel-section panel-needs-review";
+            const reviewTitle = this.currentLang === "hi" ? "समीक्षा आवश्यक (अपरिचित परीक्षण)" :
+                                (this.currentLang === "ml" ? "പരിശോധന ആവശ്യമാണ് (തിരിച്ചറിയാത്തവ)" :
+                                (this.currentLang === "ta" ? "சரிபார்ப்பு தேவை (அறியப்படாதவை)" :
+                                (this.currentLang === "te" ? "సమీక్ష అవసరం (గుర్తించబడనివి)" : "Needs Human Review (Unrecognized)")));
+            const reviewNotice = this.currentLang === "hi" ? "ये परीक्षण मानक संदर्भ श्रेणियों से मेल नहीं खाए। कृपया अपने डॉक्टर या मूल रिपोर्ट से जांचें।" :
+                                 (this.currentLang === "ml" ? "ഈ ടെസ്റ്റുകൾ സാധാരണ റഫറൻസ് പരിധികളുമായി പൊരുത്തപ്പെടുന്നില്ല. ദയവായി യഥാർത്ഥ ലാബ് റിപ്പോർട്ടോ ഡോക്ടറോ പരിശോധിക്കുക." :
+                                 (this.currentLang === "ta" ? "இந்த சோதனைகள் நிலையான வரம்புகளுடன் பொருந்தவில்லை. தயவுசெய்து உங்கள் அசல் அறிக்கையை சரிபார்க்கவும்." :
+                                 (this.currentLang === "te" ? "ఈ పరీక్షలు ప్రామాణిక పరిధులతో సరిపోలలేదు. దయచేసి మీ అసలు రిపోర్టును పరిశీలించండి." :
+                                 "These parameters could not be safely matched to standardized clinical reference ranges. Please verify on your original paper report or consult your physician.")));
+            const unrecBadge = `${unrecList.length} ${unrecList.length === 1 ? 'test' : 'tests'}`;
+
+            reviewSec.innerHTML = `
+                <div class="panel-header panel-header-review">
+                    <div class="panel-header-left">
+                        <span class="panel-header-icon" aria-hidden="true">📋</span>
+                        <h4 class="panel-header-title">${reviewTitle}</h4>
+                    </div>
+                    <span class="panel-header-badge badge-review">${unrecBadge}</span>
+                </div>
+                <div class="needs-review-notice">
+                    <span>⚠️</span>
+                    <span>${reviewNotice}</span>
+                </div>
+                <div class="panel-cards-grid">
+                    ${unrecList.map(item => `
+                        <div class="test-item-card card-unrecognized">
+                            <div class="test-card-main">
+                                <div class="test-icon-badge" aria-hidden="true">🔍</div>
+                                <div class="test-meta">
+                                    <span class="test-title">${item.test_name}</span>
+                                    <div class="test-status-pill pill-unrecognized">
+                                        <span class="status-symbol">⚠️</span>
+                                        <span class="status-name">Needs Review</span>
+                                    </div>
+                                </div>
+                                <div class="test-val-container">
+                                    <span class="test-val-badge">${item.value !== null && item.value !== undefined ? item.value : '--'}</span>
+                                    <span class="test-unit-badge">${item.unit || ''}</span>
+                                </div>
+                            </div>
+                            <div class="test-row-details">
+                                <p class="test-desc text-muted">${item.reason || 'Unrecognized test parameter'}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            this.testsGrid.appendChild(reviewSec);
+        }
+
         // Hospital / Nearby Help: Triggered if ANY result is Red or Yellow via MCP tool
         if (overallStatus === "red" || overallStatus === "yellow") {
+            const abnormalItems = items.filter(item => item.status === "red" || item.status === "yellow");
+            const conditions = abnormalItems.map(item => item.test_name).join(",");
+
             this.hospitalFinderSection.style.display = "block";
             this.hospitalFinderSection.className = `card hospital-finder-card urgency-${overallStatus}`;
-            this.fetchNearbyHelp(overallStatus);
+            this.fetchNearbyHelp(overallStatus, conditions);
         } else {
             this.hospitalFinderSection.style.display = "none";
         }
@@ -1180,10 +1240,10 @@ class ReportSakhiApp {
     // -------------------------------------------------------------
     // MCP Server: find_nearby_help Integration
     // -------------------------------------------------------------
-    async fetchNearbyHelp(urgency) {
+    async fetchNearbyHelp(urgency, conditions = "") {
         const executeFetch = async (lat = null, lng = null) => {
             try {
-                let url = `/api/help/nearby?urgency=${encodeURIComponent(urgency)}&language=${encodeURIComponent(this.currentLang)}`;
+                let url = `/api/help/nearby?urgency=${encodeURIComponent(urgency)}&language=${encodeURIComponent(this.currentLang)}&conditions=${encodeURIComponent(conditions)}`;
                 if (lat !== null && lng !== null) {
                     url += `&latitude=${lat}&longitude=${lng}`;
                 }
@@ -1202,6 +1262,61 @@ class ReportSakhiApp {
                 if (this.helpUrgencyBadge) {
                     this.helpUrgencyBadge.innerText = (data.urgency === "red") ? "URGENT ATTENTION" : "CONSULT DOCTOR";
                 }
+
+                // Render dynamic specialties and tiers
+                const specialistContainer = document.getElementById("specialistDetectedContainer");
+                const tier1Container = document.getElementById("tier1Container");
+                const tier2Container = document.getElementById("tier2Container");
+                
+                if (specialistContainer) {
+                    specialistContainer.innerHTML = "";
+                    if (data.specialties && data.specialties.length > 0) {
+                        specialistContainer.innerHTML = `<div class="specialist-badge">
+                            <span>🩺</span>
+                            <span><strong>Recommended Specialist:</strong><br/>${data.specialties.join(", ")}</span>
+                        </div>`;
+                    }
+                }
+
+                const renderFacilities = (container, title, facilities, icon) => {
+                    if (!container) return;
+                    container.innerHTML = "";
+                    if (!facilities || facilities.length === 0) return;
+                    
+                    let html = `<div class="tier-title"><span>${icon}</span> ${title}</div>`;
+                    facilities.forEach(fac => {
+                        let mapLink = data.map_url;
+                        if (lat !== null && lng !== null && fac.map_query) {
+                            mapLink = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${encodeURIComponent(fac.map_query)}`;
+                        } else if (fac.map_query) {
+                            mapLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fac.map_query)}`;
+                        }
+                        
+                        html += `
+                        <div class="facility-card">
+                            <div class="facility-card-header">
+                                <div class="facility-info">
+                                    <strong>${fac.name}</strong>
+                                    <span class="facility-type">${fac.type}</span>
+                                </div>
+                            </div>
+                            <div class="facility-desc">${fac.desc}</div>
+                            <div class="facility-footer">
+                                ${fac.phone ? `<a href="tel:${fac.phone.replace(/[^0-9+]/g, '')}" class="facility-phone">📞 ${fac.phone}</a>` : ''}
+                                ${fac.distance ? `<span class="facility-distance">📍 ${fac.distance}</span>` : ''}
+                                <a href="${mapLink}" target="_blank" rel="noopener noreferrer" class="btn-facility-map">
+                                    Directions
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                                </a>
+                            </div>
+                        </div>`;
+                    });
+                    container.innerHTML = html;
+                };
+
+                renderFacilities(tier1Container, "Tier 1: Local Options", data.facilities_tier1, "🏥");
+                renderFacilities(tier2Container, "Tier 2: Centers of Excellence", data.facilities_tier2, "🏛️");
+
             } catch (err) {
                 console.warn("Failed to fetch nearby help from MCP tool:", err);
             }

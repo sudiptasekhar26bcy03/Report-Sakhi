@@ -116,11 +116,6 @@
                     <span class="scan-btn-sub" id="scanBtnSub">PDF or Photos (Multi-page supported)</span>
                 </button>
 
-                <!-- Demo sample quick button -->
-                <button type="button" class="btn-demo-sample" id="btnDemoSample">
-                    ⚡ <span id="demoSampleText">Or Try Sample Report (CBC + Sugar)</span>
-                </button>
-
                 <!-- Follow-up sample button to instantly demo trend tracker -->
                 <button type="button" class="btn-demo-sample btn-demo-followup" id="btnDemoFollowup" style="margin-top: 8px;">
                     📈 <span id="demoFollowupText">Or Simulate Follow-up Test (See Trend Tracker)</span>
@@ -291,6 +286,11 @@
                     <span class="map-action-icon">📍</span>
                     <span id="hospitalActionText">Open Map: Nearest Hospitals & Clinics</span>
                 </a>
+
+                <!-- Dynamic Specialist and Tiered Facilities injected by JS -->
+                <div id="specialistDetectedContainer"></div>
+                <div id="tier1Container" class="tier-container"></div>
+                <div id="tier2Container" class="tier-container"></div>
 
                 <!-- Emergency Helplines (108 / 104 / 112) -->
                 <div class="helplines-container" id="helplinesContainer">

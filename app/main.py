@@ -240,6 +240,7 @@ async def voice_ask_question(
 async def get_nearby_help(
     urgency: str = "red",
     query_type: str = "hospital",
+    conditions: str = "",
     latitude: Optional[float] = None,
     longitude: Optional[float] = None,
     language: str = "en"
@@ -251,6 +252,7 @@ async def get_nearby_help(
     help_data = find_nearby_help(
         query_type=query_type,
         urgency=urgency,
+        conditions=conditions,
         latitude=latitude,
         longitude=longitude,
         language=language

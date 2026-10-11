@@ -13,10 +13,34 @@ import json
 import logging
 import os
 import re
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
 logger = logging.getLogger(__name__)
+
+# Common pathology & diagnostic abbreviations mapped to standardized clinical terms
+CLINICAL_ABBREVIATIONS: Dict[str, str] = {
+    "creat": "creatinine",
+    "chol": "cholesterol",
+    "bili": "bilirubin",
+    "trig": "triglycerides",
+    "trigl": "triglycerides",
+    "tg": "triglycerides",
+    "hb": "hemoglobin",
+    "haem": "hemoglobin",
+    "plt": "platelets",
+    "glu": "glucose",
+    "leuko": "leukocytes",
+    "lympho": "lymphocytes",
+    "neutro": "neutrophils",
+    "eosino": "eosinophils",
+    "mono": "monocytes",
+    "baso": "basophils",
+    "alk": "alkaline",
+    "phos": "phosphatase",
+    "alp": "alkaline phosphatase"
+}
 
 class CheckerAgent:
     def __init__(self, ranges_path: Optional[str] = None):
@@ -42,6 +66,35 @@ class CheckerAgent:
         if not name:
             return ""
         return re.sub(r"[^a-z0-9]", "", name.lower())
+
+    @classmethod
+    def _normalize_medical_text(cls, text: Optional[str]) -> Tuple[str, str, str]:
+        """
+        Normalizes medical test names by:
+        1. Converting to lowercase.
+        2. Standardizing common clinical prefixes (e.g. 's.', 'serum', 'b.', 'blood', 'total', 'plasma').
+        3. Stripping non-alphanumeric punctuation.
+        4. Expanding common clinical abbreviations (e.g. 'creat' -> 'creatinine').
+        Returns:
+            (norm_str, sorted_str, clean_nospace)
+        """
+        if not text:
+            return "", "", ""
+        s = text.lower().strip()
+        s = re.sub(r"\b(s|serum|plasma|blood|b|total|t)\b[\s\.]*", " ", s)
+        s = re.sub(r"^s[\.\s]+", " ", s)
+        s = re.sub(r"^b[\.\s]+", " ", s)
+        s = re.sub(r"[^a-z0-9\s]", " ", s)
+        tokens = []
+        for t in s.split():
+            clean_t = t.strip()
+            if clean_t:
+                expanded = CLINICAL_ABBREVIATIONS.get(clean_t, clean_t)
+                tokens.append(expanded)
+        norm_str = " ".join(tokens)
+        sorted_str = " ".join(sorted(tokens))
+        clean_nospace = re.sub(r"[^a-z0-9]", "", text.lower())
+        return norm_str, sorted_str, clean_nospace
 
     @staticmethod
     def _parse_reference_range(range_str: str) -> Tuple[Optional[float], Optional[float]]:
@@ -75,54 +128,104 @@ class CheckerAgent:
                 pass
         return None, None
 
-    def find_matching_rule(self, test_name: str) -> Optional[Tuple[str, Dict[str, Any]]]:
+    def find_matching_rule_with_score(
+        self,
+        test_name: str,
+        similarity_threshold: float = 0.80
+    ) -> Optional[Tuple[str, Dict[str, Any], float]]:
         """
-        Matches an extracted test name against canonical keys and aliases in ranges.json.
-        Uses exact matching first, then longest matching alias to prevent greedy collisions
-        (e.g., 'mean cell haemoglobin, mch' must match 'mch' and NEVER 'hemoglobin').
+        Matches an extracted test name against canonical keys and aliases in ranges.json
+        using exact, normalized, token-sorted, and fuzzy string matching.
+        Returns:
+            (test_key, test_def, confidence_score) or None
         """
         if not test_name:
             return None
 
-        clean_target = self._normalize_name(test_name)
-        if not clean_target:
+        t_norm, t_sort, t_clean = self._normalize_medical_text(test_name)
+        if not t_norm and not t_clean:
             return None
 
         tests_catalog = self.ranges_data.get("tests", {})
 
-        # 1. Exact match on rule key
+        # 1. Exact match on raw clean key, canonical name, or aliases (Score = 1.0)
         for test_key, test_def in tests_catalog.items():
-            if self._normalize_name(test_key) == clean_target:
-                return test_key, test_def
-
-        # 2. Exact match on canonical name or aliases
-        for test_key, test_def in tests_catalog.items():
-            canonical = test_def.get("canonical_name", "")
-            if self._normalize_name(canonical) == clean_target:
-                return test_key, test_def
-
+            if re.sub(r"[^a-z0-9]", "", test_key.lower()) == t_clean:
+                return test_key, test_def, 1.0
+            if re.sub(r"[^a-z0-9]", "", test_def.get("canonical_name", "").lower()) == t_clean:
+                return test_key, test_def, 1.0
             for alias in test_def.get("aliases", []):
-                if self._normalize_name(alias) == clean_target:
-                    return test_key, test_def
+                if re.sub(r"[^a-z0-9]", "", alias.lower()) == t_clean:
+                    return test_key, test_def, 1.0
+
+        # 2. Exact match on medical normalized & abbreviation-expanded string (Score = 1.0)
+        for test_key, test_def in tests_catalog.items():
+            k_norm, k_sort, _ = self._normalize_medical_text(test_key)
+            c_norm, c_sort, _ = self._normalize_medical_text(test_def.get("canonical_name", ""))
+            if t_norm and (t_norm == k_norm or t_norm == c_norm):
+                return test_key, test_def, 1.0
+            if t_sort and (t_sort == k_sort or t_sort == c_sort):
+                return test_key, test_def, 1.0
+            for alias in test_def.get("aliases", []):
+                a_norm, a_sort, _ = self._normalize_medical_text(alias)
+                if t_norm and t_norm == a_norm:
+                    return test_key, test_def, 1.0
+                if t_sort and t_sort == a_sort:
+                    return test_key, test_def, 1.0
 
         # 3. Substring matching prioritized by longest matching alias (minimum 4 chars)
-        best_match = None
-        best_len = 0
+        best_sub = None
+        best_sub_len = 0
         for test_key, test_def in tests_catalog.items():
             for alias in test_def.get("aliases", []):
-                alias_norm = self._normalize_name(alias)
-                if len(alias_norm) >= 4 and alias_norm in clean_target:
-                    if len(alias_norm) > best_len:
-                        best_len = len(alias_norm)
-                        best_match = (test_key, test_def)
-                elif len(clean_target) >= 4 and clean_target in alias_norm:
-                    if len(clean_target) > best_len:
-                        best_len = len(clean_target)
-                        best_match = (test_key, test_def)
+                _, _, a_clean = self._normalize_medical_text(alias)
+                if len(a_clean) >= 4 and len(t_clean) >= 4:
+                    if a_clean in t_clean and len(a_clean) > best_sub_len:
+                        best_sub_len = len(a_clean)
+                        best_sub = (test_key, test_def)
+                    elif t_clean in a_clean and len(t_clean) > best_sub_len:
+                        best_sub_len = len(t_clean)
+                        best_sub = (test_key, test_def)
 
-        if best_match:
-            return best_match
+        if best_sub:
+            return best_sub[0], best_sub[1], 0.95
 
+        # 4. Fuzzy SequenceMatcher comparison against keys, canonical names, and aliases
+        best_fuzzy_match = None
+        best_fuzzy_score = 0.0
+
+        for test_key, test_def in tests_catalog.items():
+            candidate_strings = [test_key, test_def.get("canonical_name", "")] + test_def.get("aliases", [])
+            for cand in candidate_strings:
+                c_norm, c_sort, c_clean = self._normalize_medical_text(cand)
+
+                # Safety guardrail: Do NOT loosely fuzzy-match short acronyms (<= 4 chars)
+                # to prevent catastrophic medical collisions (e.g. MCH vs MCHC, T3 vs T4)
+                if len(t_clean) <= 4 or len(c_clean) <= 4:
+                    continue
+
+                r_norm = SequenceMatcher(None, t_norm, c_norm).ratio()
+                r_sort = SequenceMatcher(None, t_sort, c_sort).ratio()
+                r_clean = SequenceMatcher(None, t_clean, c_clean).ratio()
+                score = max(r_norm, r_sort, r_clean)
+
+                if score > best_fuzzy_score:
+                    best_fuzzy_score = score
+                    best_fuzzy_match = (test_key, test_def)
+
+        if best_fuzzy_match and best_fuzzy_score >= similarity_threshold:
+            return best_fuzzy_match[0], best_fuzzy_match[1], round(best_fuzzy_score, 3)
+
+        return None
+
+    def find_matching_rule(self, test_name: str, similarity_threshold: float = 0.80) -> Optional[Tuple[str, Dict[str, Any]]]:
+        """
+        Matches an extracted test name against canonical keys and aliases in ranges.json.
+        Preserves 2-tuple return format (test_key, test_def) for backward compatibility.
+        """
+        res = self.find_matching_rule_with_score(test_name, similarity_threshold=similarity_threshold)
+        if res:
+            return res[0], res[1]
         return None
 
     def evaluate_test(self, test_item: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -153,18 +256,17 @@ class CheckerAgent:
         except (TypeError, ValueError):
             return None
 
-        # Look up rule in ranges.json
-        matched = self.find_matching_rule(raw_name)
+        # Look up rule in ranges.json with fuzzy and normalized matching
+        matched_result = self.find_matching_rule_with_score(raw_name)
 
         # Parse report's printed biological reference interval if available
         rep_min, rep_max = self._parse_reference_range(raw_range)
 
-        # If rule was not found, only retain if report itself provided an explicit reference range or flag
-        if not matched and rep_min is None and rep_max is None and not raw_flag:
+        # Safe Skip Guardrail: If rule was not found, safely skip rather than guessing a medical range
+        if not matched_result:
             return None
 
-        rule_key = matched[0] if matched else "custom_lab_test"
-        rule = matched[1] if matched else {}
+        rule_key, rule, match_score = matched_result
 
         canonical_name = rule.get("canonical_name", raw_name)
         unit = raw_unit or rule.get("unit", "")
@@ -251,6 +353,7 @@ class CheckerAgent:
             "panel": panel,
             "value": val,
             "unit": unit,
+            "match_confidence": match_score,
             "color": color,           # "green" | "yellow" | "red"
             "status_code": status_code, # "normal" | "watch" | "urgent"
             "status_label": status_label,
@@ -267,18 +370,44 @@ class CheckerAgent:
         """
         Runs batch evaluation against ranges.json.
         Labels known tests as green, yellow, or red while skipping unknown or unmeasurable tests.
+        Flags unrecognized tests under 'needs_human_review' for safety.
         """
         evaluated_items: List[Dict[str, Any]] = []
         skipped_tests: List[Dict[str, Any]] = []
+        needs_human_review: List[Dict[str, Any]] = []
 
         for item in raw_tests:
+            raw_name = str(item.get("test_name", "")).strip()
+            raw_val = item.get("value")
+            is_valid_num = False
+            if raw_val is not None:
+                try:
+                    float(str(raw_val).replace(",", "").strip())
+                    is_valid_num = True
+                except (TypeError, ValueError):
+                    pass
+
             evaluated = self.evaluate_test(item)
             if evaluated is None:
+                if not is_valid_num:
+                    reason = "Unreadable or non-numeric test value (requires manual review)"
+                else:
+                    reason = "Unrecognized parameter: falls below similarity threshold (requires physician/manual review)"
+
+                review_entry = {
+                    "test_name": raw_name or "Unknown",
+                    "value": raw_val,
+                    "unit": item.get("unit"),
+                    "reference_range": item.get("reference_range"),
+                    "flag": item.get("flag"),
+                    "reason": reason
+                }
                 skipped_tests.append({
-                    "test_name": item.get("test_name", "Unknown"),
-                    "value": item.get("value"),
+                    "test_name": raw_name or "Unknown",
+                    "value": raw_val,
                     "unit": item.get("unit")
                 })
+                needs_human_review.append(review_entry)
                 continue
             evaluated_items.append(evaluated)
 
@@ -301,6 +430,9 @@ class CheckerAgent:
             "red_count": red_count,
             "skipped_count": len(skipped_tests),
             "skipped_tests": skipped_tests,
+            "needs_human_review": needs_human_review,
+            "unrecognized_tests": needs_human_review,
+            "needs_review_count": len(needs_human_review),
             "items": evaluated_items
         }
 
